@@ -5,13 +5,13 @@
 #include "multi_level_cache.hpp"
 #include "config.hpp"
 
-std::list<caches::CacheLevel> parse_cache_levels_algorithms()
+std::list<caches::CacheLevel> parse_cache_levels_algorithms(const char* config_path)
 {
-    std::ifstream file(config_file);
+    std::ifstream file(config_path);
 
     if (!file)
     {
-        std::cerr << "Unable to open config file '" << config_file << "'." << std::endl;
+        std::cerr << "Unable to open config file '" << config_path << "'." << std::endl;
         std::exit(1);
     }
 

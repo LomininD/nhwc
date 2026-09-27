@@ -8,9 +8,20 @@ using namespace caches;
 using Page = long long;
 using PageId = long long;
 
-int main()
+int main(int argc, char *argv[])
 {
-    auto levels = parse_cache_levels_algorithms();
+    auto config_path = default_config_path;
+    if (argc > 1 && 0 == std::strcmp(argv[1], "--config"))
+    {
+        if (argc < 3)
+        {
+            std::cerr << "error: --config requires a path argument.\n";
+            return 1;
+        }
+        config_path = argv[2];
+    }
+
+    auto levels = parse_cache_levels_algorithms(config_path);
     for (auto& level : levels)
     {
         long long n;
