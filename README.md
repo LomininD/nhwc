@@ -63,15 +63,16 @@ uv run main.py
 
 The following options are supported:
 
-| Option                       | Description                                                                |  Default |
-| ---------------------------- | -------------------------------------------------------------------------- | -------: |
-| `-s`, `--cache-size`         | Total cache size                                                           |   `6510` |
-| `-l`, `--levels`             | Number of maximum cache levels                                             |      `5` |
-| `-r`, `--requests`           | Number of requests to generate                                             | `131072` |
-| `-k`, `--keys`               | Number of unique keys                                                      |  `65536` |
-| `-g`, `--seed`               | Random seed for reproducible generation                                    |     `42` |
-| `-p`, `--pattern`            | Workload generation pattern; can be `all` or one of the available patterns |    `all` |
-| `-sp`, `--sharing-policy`    | The capacity sharing policy used for multi-level cache                     |    `all` |
+| Option                       | Description                                                                |         Default |
+| ---------------------------- | -------------------------------------------------------------------------- | --------------: |
+| `-s`, `--cache-size`         | Total cache size                                                           |         `13020` |
+| `-l`, `--levels`             | Number of maximum cache levels                                             |             `5` |
+| `-r`, `--requests`           | Number of requests to generate                                             |        `131072` |
+| `-k`, `--keys`               | Number of unique keys                                                      |         `65536` |
+| `-g`, `--seed`               | Random seed for reproducible generation                                    |            `42` |
+| `-p`, `--pattern`            | Workload generation pattern; can be `all` or one of the available patterns |           `all` |
+| `-sp`, `--sharing-policy`    | The capacity sharing policy used for multi-level cache                     |           `all` |
+| `-o`, `--output`             | Output file path                                                           |     `report.md` |
 
 Available patterns:
 

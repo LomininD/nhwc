@@ -6,10 +6,11 @@ import nhwc
 
 
 DEFAULT_CACHE_LEVELS = 5
-DEFAULT_CACHE_SIZE = 6510
+DEFAULT_CACHE_SIZE = 13020
 DEFAULT_REQUESTS_COUNT = 131072
 DEFAULT_KEY_COUNT = 65536
 DEFAULT_SEED = 42
+DEFAULT_OUTPUT_FILENAME = "report.md"
 
 
 def main():
@@ -24,6 +25,7 @@ def main():
     parser.add_argument("-sp", "--sharing-policy",
                         choices=["all", *[(p.name).lower() for p in CapacitySharingPolicy]],
                         default="all")
+    parser.add_argument("-o", "--output", type=str, default=DEFAULT_OUTPUT_FILENAME)
 
     args = parser.parse_args()
 
@@ -42,7 +44,7 @@ def main():
 
     benchmarker = Benchmarker(args.levels, nhwc.SUPPORTED_CACHE_ALGORITHMS, policies, patterns)
     result = benchmarker.run(args.cache_size, args.requests, args.keys, args.seed)
-    benchmarker.save_report(benchmarker.analyze(result), "report.md")
+    benchmarker.save_report(benchmarker.analyze(result), args.output)
 
 
 if __name__ == "__main__":
