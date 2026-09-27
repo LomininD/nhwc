@@ -15,7 +15,9 @@ cmake --build build
 
 ## Running
 
-First of all, you need to create a `config.txt` file with following contents:
+First of all, you need to create a config file. The default one is `config.txt`, but you can select a different file with `--config` option.
+
+The config file format is:
 ```
 <number_of_levels> <cache_algorithms>
 ```
