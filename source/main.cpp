@@ -5,13 +5,12 @@ import multi_level_cache;
 import config;
 import util;
 
-using namespace caches;
 using Page = long long;
 using PageId = long long;
 
 int main(int argc, char *argv[])
 {
-    auto config_path = default_config_path;
+    auto config_path = caches::config::default_config_path;
     if (argc > 1 && 0 == std::strcmp(argv[1], "--config"))
     {
         if (argc < 3)
@@ -22,12 +21,12 @@ int main(int argc, char *argv[])
         config_path = argv[2];
     }
 
-    auto levels = parse_cache_levels_algorithms(config_path);
+    auto levels = caches::config::parse_cache_levels_algorithms(config_path);
     for (auto& level : levels)
     {
         long long n;
-        auto read_ok = read_integer(n);
-        if (!read_ok || can_not_be_valid_size_t(n))
+        auto read_ok = util::read_integer(n);
+        if (!read_ok || util::can_not_be_valid_size_t(n))
         {
             std::cerr << "Expected nonnegative cache size.\n";
             return 1;
@@ -35,11 +34,11 @@ int main(int argc, char *argv[])
         level.capacity = n;
     }
 
-    MultiLevelCache<Page, PageId> cache(levels);
+    caches::MultiLevelCache<Page, PageId> cache(levels);
 
     long long data_len;
-    auto read_ok = read_integer(data_len);
-    if (!read_ok || can_not_be_valid_size_t(data_len))
+    auto read_ok = util::read_integer(data_len);
+    if (!read_ok || util::can_not_be_valid_size_t(data_len))
     {
         std::cerr << "Expected nonnegative cache size.\n";
         return 1;
@@ -52,8 +51,8 @@ int main(int argc, char *argv[])
     {
         PageId key;
 
-        auto read_ok = read_integer(key);
-        if (!read_ok || can_not_be_valid_size_t(key))
+        auto read_ok = util::read_integer(key);
+        if (!read_ok || util::can_not_be_valid_size_t(key))
         {
             std::cerr << "Expected nonnegative page key.\n";
             return 1;

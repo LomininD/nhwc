@@ -5,7 +5,10 @@ module;
 
 export module util;
 
-export bool read_integer(long long& value)
+export namespace util
+{
+
+bool read_integer(long long& value)
 {
     if (!(std::cin >> value))
         return false;
@@ -15,8 +18,10 @@ export bool read_integer(long long& value)
            std::isspace(static_cast<unsigned char>(next)));
 }
 
-export bool can_not_be_valid_size_t(long long value)
+bool can_not_be_valid_size_t(long long value)
 {
     return value < 0 ||
            static_cast<unsigned long long>(value) > std::numeric_limits<std::size_t>::max();
 }
+
+} // namespace util

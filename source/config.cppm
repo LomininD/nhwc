@@ -9,10 +9,13 @@ export module config;
 
 import multi_level_cache;
 
-export constexpr auto default_config_path = "config.txt";
-export std::list<caches::CacheLevel> parse_cache_levels_algorithms(const char* config_path);
+export namespace caches::config
+{
 
-export std::list<caches::CacheLevel> parse_cache_levels_algorithms(const char* config_path)
+constexpr auto default_config_path = "config.txt";
+std::list<caches::CacheLevel> parse_cache_levels_algorithms(const char* config_path);
+
+std::list<caches::CacheLevel> parse_cache_levels_algorithms(const char* config_path)
 {
     std::ifstream file(config_path);
 
@@ -39,4 +42,6 @@ export std::list<caches::CacheLevel> parse_cache_levels_algorithms(const char* c
     }
 
     return levels;
+}
+
 }
