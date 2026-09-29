@@ -8,12 +8,12 @@ module;
 #include <string_view>
 
 #include "lfu_cache.hpp"
-#include "lirs_cache.hpp"
 #include "two_queue_cache.hpp"
 
 export module multi_level_cache;
 
 import arc_cache;
+import lirs_cache;
 import lru_cache;
 import base_cache;
 

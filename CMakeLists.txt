@@ -9,6 +9,7 @@ target_sources(caches
         FILE_SET CXX_MODULES
         FILES
             source/arc_cache.cppm
+            source/lirs_cache.cppm
             source/lru_cache.cppm
             source/multi_level_cache.cppm
             source/base_cache.cppm
