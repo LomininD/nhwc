@@ -1,36 +1,37 @@
-cmake_minimum_required(VERSION 3.14)
-project("nhwc")
+cmake_minimum_required(VERSION 3.28)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+project(test_modules LANGUAGES CXX)
 
 add_executable(main
     source/main.cpp
-    source/config.cpp
-    source/util.cpp
-    source/multi_level_cache.cpp
-)
-set_target_properties(main PROPERTIES
-    CXX_STANDARD 20
-    CXX_STANDARD_REQUIRED ON
 )
 
-add_executable(ideal_cache
-    source/ideal_cache.cpp
-    source/util.cpp
-)
-set_target_properties(ideal_cache PROPERTIES
-    CXX_STANDARD 20
-    CXX_STANDARD_REQUIRED ON
-)
-
-add_library(nhwc INTERFACE)
-target_include_directories(nhwc INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+target_sources(main
+    PUBLIC
+        FILE_SET CXX_MODULES
+        FILES
+            source/config.cppm
+            source/util.cppm
 )
 
-target_link_libraries(main PRIVATE nhwc)
-target_link_libraries(ideal_cache PRIVATE nhwc)
+add_library(caches)
+target_sources(caches
+    PUBLIC
+        FILE_SET CXX_MODULES
+        FILES
+            source/arc_cache.cppm
+            source/lru_cache.cppm
+            source/multi_level_cache.cppm
+            source/base_cache.cppm
+            source/lru_queue.cppm
+)
+target_include_directories(caches
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+target_compile_features(caches PUBLIC cxx_std_23)
 
-target_include_directories(main PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-enable_testing()
+target_link_libraries(main caches)
+
+target_compile_features(main PUBLIC cxx_std_23)
 add_subdirectory(tests)

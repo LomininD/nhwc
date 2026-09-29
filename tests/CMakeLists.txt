@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.28)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
@@ -27,7 +27,7 @@ add_executable(
 target_link_libraries(
     nhwc_test
     PRIVATE
-    nhwc
+    caches
     GTest::gtest_main
 )
 

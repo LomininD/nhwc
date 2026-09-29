@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "arc_cache.hpp"
+import arc_cache;
 
 TEST(ARCCacheTest, CacheHitsTest)
 {

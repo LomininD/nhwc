@@ -1,18 +1,23 @@
-#pragma once
+module;
 
 #include <functional>
 #include <list>
 #include <cstddef>
 #include <memory>
+#include <string>
+#include <string_view>
 
-#include "base_cache.hpp"
-#include "arc_cache.hpp"
-#include "lru_cache.hpp"
 #include "lfu_cache.hpp"
 #include "lirs_cache.hpp"
 #include "two_queue_cache.hpp"
 
-namespace caches
+export module multi_level_cache;
+
+import arc_cache;
+import lru_cache;
+import base_cache;
+
+export namespace caches
 {
 
 enum class CacheType
@@ -30,7 +35,20 @@ struct CacheLevel
     std::size_t capacity;
 };
 
-CacheType string_to_cache_type(const std::string_view str);
+CacheType string_to_cache_type(const std::string_view str)
+{
+    if (str == "LRU")
+        return CacheType::LRU;
+    if (str == "ARC")
+        return CacheType::ARC;
+    if (str == "2Q")
+        return CacheType::TWO_QUEUE;
+    if (str == "LFU")
+        return CacheType::LFU;
+    if (str == "LIRS")
+        return CacheType::LIRS;
+    throw std::invalid_argument("unknown cache type: " + std::string(str));
+}
 
 template <typename T, typename KeyT = int> class MultiLevelCache
 {

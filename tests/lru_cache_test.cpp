@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "lru_cache.hpp"
+import lru_cache;
 
 TEST(LRUCacheTest, CacheHitsTest)
 {

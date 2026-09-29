@@ -1,13 +1,15 @@
-#pragma once
+module;
 
 #include <list>
 #include <unordered_map>
 #include <cstddef>
 #include <functional>
 
-#include "base_cache.hpp"
+export module lru_cache;
 
-namespace caches
+import base_cache;
+
+export namespace caches
 {
 
 template <typename T, typename KeyT = int> class LRUCache : public BaseCache<T, KeyT>

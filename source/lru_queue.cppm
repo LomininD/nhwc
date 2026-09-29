@@ -1,9 +1,11 @@
-#pragma once
+module;
 
 #include <list>
 #include <unordered_map>
 #include <optional>
 #include <cstddef>
+
+export module lru_queue;
 
 namespace caches
 {
@@ -86,14 +88,14 @@ struct LRUQueueItem
     T page;
 };
 
-template <typename T, typename KeyT = int>
+export template <typename T, typename KeyT = int>
 class LRUQueue : public BaseLRUQueue<KeyT, LRUQueueItem<T, KeyT>>
 {
     using QueueItem = LRUQueueItem<T, KeyT>;
     KeyT get_key(QueueItem& item) { return item.key; }
 };
 
-template <typename KeyT = int> class GhostLRUQueue : public BaseLRUQueue<KeyT, KeyT>
+export template <typename KeyT = int> class GhostLRUQueue : public BaseLRUQueue<KeyT, KeyT>
 {
     KeyT get_key(KeyT& item) { return item; }
 };

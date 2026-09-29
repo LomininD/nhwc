@@ -6,10 +6,24 @@ This project implements multi-level cache with various algorithms supported.
 
 ## Building
 
-You need to have [CMake](https://cmake.org) 3.14+, compatible build tools (see [CMake Generators](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html) for more information) and a compiler with C++20 support installed.
+You need to have [CMake](https://cmake.org) 3.28+, compatible build tools (see [CMake Generators](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html) for more information) with [modules support](https://cmake.org/cmake/help/latest/manual/cmake-cxxmodules.7.html#generator-support) and a compiler with C++23 support installed.
 
+To configure the build on macOS and Linux, run:
 ```shell
-cmake -B build
+cmake -B build -G Ninja
+```
+
+On Windows:
+```shell
+cmake -G "Visual Studio 18 2026"
+```
+or
+```shell
+cmake -G "Visual Studio 17 2022"
+```
+
+Then run:
+```shell
 cmake --build build
 ```
 

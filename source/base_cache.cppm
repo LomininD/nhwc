@@ -1,8 +1,10 @@
-#pragma once
+module;
 
 #include <functional>
 
-namespace caches
+export module base_cache;
+
+export namespace caches
 {
 
 template <typename T, typename KeyT = int> class BaseCache

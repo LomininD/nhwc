@@ -1,9 +1,11 @@
+module;
+
 #include <iostream>
 #include <limits>
 
-#include "util.hpp"
+export module util;
 
-bool read_integer(long long& value)
+export bool read_integer(long long& value)
 {
     if (!(std::cin >> value))
         return false;
@@ -13,7 +15,7 @@ bool read_integer(long long& value)
            std::isspace(static_cast<unsigned char>(next)));
 }
 
-bool can_not_be_valid_size_t(long long value)
+export bool can_not_be_valid_size_t(long long value)
 {
     return value < 0 ||
            static_cast<unsigned long long>(value) > std::numeric_limits<std::size_t>::max();

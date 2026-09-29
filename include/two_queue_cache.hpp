@@ -3,8 +3,8 @@
 #include <cstddef>
 #include <functional>
 
-#include "base_cache.hpp"
-#include "lru_queue.hpp"
+import lru_queue;
+import base_cache;
 
 namespace caches
 {

@@ -1,11 +1,18 @@
+module;
+
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+#include <list>
 
-#include "multi_level_cache.hpp"
-#include "config.hpp"
+export module config;
 
-std::list<caches::CacheLevel> parse_cache_levels_algorithms(const char* config_path)
+import multi_level_cache;
+
+export constexpr auto default_config_path = "config.txt";
+export std::list<caches::CacheLevel> parse_cache_levels_algorithms(const char* config_path);
+
+export std::list<caches::CacheLevel> parse_cache_levels_algorithms(const char* config_path)
 {
     std::ifstream file(config_path);
 

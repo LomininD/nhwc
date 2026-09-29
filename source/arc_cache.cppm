@@ -1,13 +1,15 @@
-#pragma once
+module;
 
 #include <algorithm>
 #include <cstddef>
 #include <functional>
 
-#include "base_cache.hpp"
-#include "lru_queue.hpp"
+export module arc_cache;
 
-namespace caches
+import base_cache;
+import lru_queue;
+
+export namespace caches
 {
 
 template <typename T, typename KeyT = int> class ARCCache : public BaseCache<T, KeyT>

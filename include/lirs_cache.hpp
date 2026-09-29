@@ -7,7 +7,7 @@
 #include <list>
 #include <unordered_map>
 
-#include "base_cache.hpp"
+import base_cache;
 
 namespace caches
 {

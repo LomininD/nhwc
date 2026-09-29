@@ -1,9 +1,9 @@
 #include <iostream>
 #include <cstring>
 
-#include "multi_level_cache.hpp"
-#include "config.hpp"
-#include "util.hpp"
+import multi_level_cache;
+import config;
+import util;
 
 using namespace caches;
 using Page = long long;

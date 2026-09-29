@@ -5,7 +5,7 @@
 #include <list>
 #include <functional>
 
-#include "base_cache.hpp"
+import base_cache;
 
 namespace caches
 {
