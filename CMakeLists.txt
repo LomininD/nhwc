@@ -1,18 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
+project(nhwc LANGUAGES CXX)
 
-project(test_modules LANGUAGES CXX)
-
-add_executable(main
-    source/main.cpp
-)
-
-target_sources(main
-    PUBLIC
-        FILE_SET CXX_MODULES
-        FILES
-            source/config.cppm
-            source/util.cppm
-)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(caches)
 target_sources(caches
@@ -31,7 +20,17 @@ target_include_directories(caches
 )
 target_compile_features(caches PUBLIC cxx_std_23)
 
+add_executable(main source/main.cpp)
+target_sources(main
+    PUBLIC
+        FILE_SET CXX_MODULES
+        FILES
+            source/config.cppm
+            source/util.cppm
+)
+target_compile_features(main PUBLIC cxx_std_23)
+
 target_link_libraries(main caches)
 
-target_compile_features(main PUBLIC cxx_std_23)
+enable_testing()
 add_subdirectory(tests)
