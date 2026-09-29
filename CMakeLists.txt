@@ -10,6 +10,7 @@ target_sources(caches
         FILES
             source/arc_cache.cppm
             source/lirs_cache.cppm
+            source/two_queue_cache.cppm
             source/lru_cache.cppm
             source/multi_level_cache.cppm
             source/base_cache.cppm

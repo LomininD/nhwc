@@ -1,12 +1,14 @@
-#pragma once
+module;
 
 #include <cstddef>
 #include <functional>
 
+export module two_queue_cache;
+
 import lru_queue;
 import base_cache;
 
-namespace caches
+export namespace caches
 {
 
 template <typename T, typename KeyT = int> class TwoQueueCache : public BaseCache<T, KeyT>
