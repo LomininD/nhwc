@@ -13,7 +13,6 @@ export namespace caches::config
 {
 
 constexpr auto default_config_path = "config.txt";
-std::list<caches::CacheLevel> parse_cache_levels_algorithms(const char* config_path);
 
 std::list<caches::CacheLevel> parse_cache_levels_algorithms(const char* config_path)
 {
