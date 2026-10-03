@@ -16,6 +16,7 @@ target_sources(caches
             source/multi_level_cache.cppm
             source/base_cache.cppm
             source/lru_queue.cppm
+            source/belady_cache.cppm
 )
 target_include_directories(caches
     PUBLIC

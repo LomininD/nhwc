@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "belady_cache.hpp"
-#include "util.hpp"
+import belady_cache;
+import util;
 
 using namespace caches;
 

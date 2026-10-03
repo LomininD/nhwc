@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <cstddef>
 #include <unordered_map>
@@ -6,7 +6,9 @@
 #include <vector>
 #include <algorithm>
 
-namespace caches
+export module belady_cache;
+
+export namespace caches
 {
 
 template <typename T, typename KeyT>

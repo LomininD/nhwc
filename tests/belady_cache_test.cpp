@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "belady_cache.hpp"
+import belady_cache;
 
 TEST(BeladyCacheTest, CacheHitsTest)
 {
