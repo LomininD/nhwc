@@ -61,7 +61,8 @@ template <typename T, typename KeyT = int> class LIRSCache : public BaseCache<T,
 
     void demote_lir_bottom()
     {
-        if (stack_.empty() || stack_.back().status != BlockStatus::LIR)
+        prune_stack();
+        if (stack_.empty())
             return;
 
         StackRecord bottom = stack_.back();
@@ -73,7 +74,8 @@ template <typename T, typename KeyT = int> class LIRSCache : public BaseCache<T,
         --lir_count_;
     }
 
-    bool is_full() const { return lir_count_ + queue_.size() >= capacity_; }
+    bool
+     is_full() const { return lir_count_ + queue_.size() >= capacity_; }
 
     void evict_lru_hir()
     {
@@ -111,12 +113,8 @@ public:
 
         if (in_stack && hit_stack->second->status == BlockStatus::LIR)
         {
-            bool was_at_bottom = (hit_stack->second == std::prev(stack_.end()));
             stack_.splice(stack_.begin(), stack_, hit_stack->second);
-
-            if (was_at_bottom)
-                prune_stack();
-
+            prune_stack();
             return true;
         }
 
@@ -131,7 +129,6 @@ public:
                 queue_.erase(hit_queue->second);
                 hash_queue_.erase(key);
 
-                prune_stack();
                 demote_lir_bottom();
                 prune_stack();
             }
@@ -140,6 +137,7 @@ public:
                 queue_.splice(queue_.begin(), queue_, hit_queue->second);
                 stack_.emplace_front(key, hit_queue->second->data, BlockStatus::HIR);
                 hash_stack_.emplace(key, stack_.begin());
+                prune_stack();
             }
 
             return true;
@@ -161,6 +159,7 @@ public:
             {
                 stack_.emplace_front(key, cache_.begin(), BlockStatus::HIR);
                 hash_stack_.emplace(key, stack_.begin());
+                prune_stack();
                 queue_.emplace_front(key, cache_.begin());
                 hash_queue_.emplace(key, queue_.begin());
             }
@@ -178,7 +177,6 @@ public:
             hit_stack->second->status = BlockStatus::LIR;
             ++lir_count_;
 
-            prune_stack();
             demote_lir_bottom();
             prune_stack();
         }
@@ -186,6 +184,7 @@ public:
         {
             stack_.emplace_front(key, cache_.begin(), BlockStatus::HIR);
             hash_stack_.emplace(key, stack_.begin());
+            prune_stack();
             queue_.emplace_front(key, cache_.begin());
             hash_queue_.emplace(key, queue_.begin());
         }
