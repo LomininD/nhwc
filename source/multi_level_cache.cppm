@@ -5,6 +5,7 @@ module;
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <stdexcept>
 #include <string_view>
 
 export module multi_level_cache;
