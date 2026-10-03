@@ -1,13 +1,15 @@
-#pragma once
+module;
 
 #include <cstddef>
 #include <unordered_map>
 #include <list>
 #include <functional>
 
+export module lfu_cache;
+
 import base_cache;
 
-namespace caches
+export namespace caches
 {
 
 template <typename T, typename KeyT> class LFUCache : public BaseCache<T, KeyT>

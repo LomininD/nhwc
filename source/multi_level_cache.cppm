@@ -7,13 +7,12 @@ module;
 #include <string>
 #include <string_view>
 
-#include "lfu_cache.hpp"
-
 export module multi_level_cache;
 
 import arc_cache;
 import lirs_cache;
 import two_queue_cache;
+import lfu_cache;
 import lru_cache;
 import base_cache;
 
