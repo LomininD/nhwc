@@ -34,6 +34,16 @@ target_sources(main
 )
 target_compile_features(main PUBLIC cxx_std_23)
 
+add_executable(ideal_cache source/ideal_cache.cpp)
+target_sources(ideal_cache
+    PUBLIC
+        FILE_SET CXX_MODULES
+        FILES
+            source/belady_cache.cppm
+            source/util.cppm
+)
+target_compile_features(ideal_cache PUBLIC cxx_std_23)
+
 target_link_libraries(main caches)
 
 enable_testing()

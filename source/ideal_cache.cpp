@@ -3,22 +3,20 @@
 import belady_cache;
 import util;
 
-using namespace caches;
-
 using Page = long long;
 using PageId = long long;
 
 int main()
 {
     long long cache_size, data_len;
-    if (!read_integer(cache_size) || !read_integer(data_len) || can_not_be_valid_size_t(cache_size)
-        || can_not_be_valid_size_t(data_len))
+    if (!util::read_integer(cache_size) || !util::read_integer(data_len)
+        || util::can_not_be_valid_size_t(cache_size) || util::can_not_be_valid_size_t(data_len))
     {
         std::cerr << "Expected nonnegative cache and data size.\n";
         return 1;
     }
 
-    BeladyCache<Page, PageId> cache(cache_size);
+    caches::BeladyCache<Page, PageId> cache(cache_size);
 
     auto load = [](PageId key) { return key; };
 
@@ -28,8 +26,8 @@ int main()
     {
         PageId key;
 
-        auto read_ok = read_integer(key);
-        if (!read_ok || can_not_be_valid_size_t(key))
+        auto read_ok = util::read_integer(key);
+        if (!read_ok || util::can_not_be_valid_size_t(key))
         {
             std::cerr << "Expected nonnegative page key.\n";
             return 1;
