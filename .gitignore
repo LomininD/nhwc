@@ -1,1 +1,7 @@
-build/
+/build*
+.cache
+.venv
+__pycache__
+uv.lock
+Testing
+.vscode
