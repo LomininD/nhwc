@@ -61,7 +61,6 @@ template <typename T, typename KeyT = int> class LIRSCache : public BaseCache<T,
 
     void demote_lir_bottom()
     {
-        prune_stack();
         if (stack_.empty())
             return;
 
