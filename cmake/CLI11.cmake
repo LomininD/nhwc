@@ -4,3 +4,8 @@ CPMAddPackage(
     GIT_TAG v2.7.2
     OPTIONS "CLI11_MODULES ON"
 )
+
+set_target_properties(CLI11_Module PROPERTIES
+    CXX_STANDARD 23
+    CXX_STANDARD_REQUIRED ON
+)
