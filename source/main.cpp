@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstring>
 
+import cli11;
+
 import multi_level_cache;
 import config;
 import util;
@@ -10,15 +12,15 @@ using PageId = long long;
 
 int main(int argc, char *argv[])
 {
-    auto config_path = caches::config::default_config_path;
-    if (argc > 1 && 0 == std::strcmp(argv[1], "--config"))
-    {
-        if (argc < 3)
-        {
-            std::cerr << "error: --config requires a path argument.\n";
-            return 1;
-        }
-        config_path = argv[2];
+    CLI::App app{"NHWC"};
+
+    std::string config_path;
+    app.add_option("-c,--config", config_path, "The config path")->required();
+
+    try {
+        app.parse(argc, argv);
+    } catch(const CLI::ParseError &e) {
+        return app.exit(e);
     }
 
     auto levels = caches::config::parse_cache_levels_algorithms(config_path);

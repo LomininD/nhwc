@@ -22,6 +22,9 @@ target_sources(caches
 )
 target_compile_features(caches PUBLIC cxx_std_23)
 
+include(cmake/CLI11.cmake)
+find_package(CLI11 REQUIRED)
+
 add_executable(${PROJECT_NAME} source/main.cpp)
 target_sources(${PROJECT_NAME}
     PRIVATE
@@ -30,7 +33,7 @@ target_sources(${PROJECT_NAME}
             source/config.cppm
             source/util.cppm
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE caches)
+target_link_libraries(${PROJECT_NAME} PRIVATE caches CLI11::Module)
 
 add_executable(ideal_cache source/ideal_cache.cpp)
 target_sources(ideal_cache
