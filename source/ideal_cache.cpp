@@ -18,8 +18,6 @@ int main()
 
     caches::BeladyCache<Page, PageId> cache(cache_size);
 
-    auto load = [](PageId key) { return key; };
-
     std::vector<PageId> requests(data_len);
 
     for (int i = 0; i < data_len; i++)
