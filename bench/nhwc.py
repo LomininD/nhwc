@@ -4,7 +4,7 @@ import os
 
 
 SUPPORTED_CACHE_ALGORITHMS = ["ARC", "LFU", "LRU", "2Q", "LIRS"]
-MAIN_BINARY_PATH = "../build/main"
+MAIN_BINARY_PATH = "../build/nhwc"
 IDEAL_BINARY_PATH = "../build/ideal_cache"
 
 

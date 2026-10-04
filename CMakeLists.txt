@@ -3,7 +3,9 @@ project(nhwc LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(caches)
+include(cmake/CPM.cmake)
+
+add_library(caches STATIC)
 target_sources(caches
     PUBLIC
         FILE_SET CXX_MODULES
@@ -18,25 +20,21 @@ target_sources(caches
             source/lru_queue.cppm
             source/belady_cache.cppm
 )
-target_include_directories(caches
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
 target_compile_features(caches PUBLIC cxx_std_23)
 
-add_executable(main source/main.cpp)
-target_sources(main
-    PUBLIC
+add_executable(${PROJECT_NAME} source/main.cpp)
+target_sources(${PROJECT_NAME}
+    PRIVATE
         FILE_SET CXX_MODULES
         FILES
             source/config.cppm
             source/util.cppm
 )
-target_compile_features(main PUBLIC cxx_std_23)
+target_link_libraries(${PROJECT_NAME} PRIVATE caches)
 
 add_executable(ideal_cache source/ideal_cache.cpp)
 target_sources(ideal_cache
-    PUBLIC
+    PRIVATE
         FILE_SET CXX_MODULES
         FILES
             source/belady_cache.cppm
@@ -44,7 +42,13 @@ target_sources(ideal_cache
 )
 target_compile_features(ideal_cache PUBLIC cxx_std_23)
 
-target_link_libraries(main caches)
+foreach(target ${PROJECT_NAME} ideal_cache)
+    target_compile_options(${target}
+        PRIVATE
+            $<$<CXX_COMPILER_ID:MSVC>:/Wall>
+            $<$<CXX_COMPILER_ID:GNU,Clang>: -Wall -Wextra -pedantic>
+    )
+endforeach()
 
 enable_testing()
 add_subdirectory(tests)
