@@ -27,7 +27,7 @@ std::list<caches::CacheLevel> parse_cache_levels_algorithms(const std::filesyste
     std::size_t cache_levels;
 
     file >> cache_levels;
-    for (int i = 0; i < cache_levels; i++)
+    for (std::size_t i = 0; i < cache_levels; i++)
     {
         std::string level_algorithm;
 
