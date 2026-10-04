@@ -1,7 +1,7 @@
 module;
 
 #include <fstream>
-#include <iostream>
+#include <print>
 #include <cstdlib>
 #include <list>
 
@@ -18,7 +18,7 @@ std::list<caches::CacheLevel> parse_cache_levels_algorithms(const std::filesyste
 
     if (!file)
     {
-        std::cerr << "Unable to open config file '" << config_path << "'." << std::endl;
+        std::println("Unable to open config file {}", config_path.string());
         std::exit(1);
     }
 
