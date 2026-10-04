@@ -80,7 +80,8 @@ public:
         {
             std::size_t delta2 = evicted_frequenters_.size() >= evicted_recents_.size() ? 1 :
                                 evicted_recents_.size() / evicted_frequenters_.size();
-            p_ = std::max(p_ - delta2, 0uz);
+            // p_ = std::max<long long>(p_ - delta2, 0);
+            p_ = (p_ > delta2) ? (p_ - delta2) : 0;
 
             replace(key);
             evicted_frequenters_.erase(key);
