@@ -32,11 +32,10 @@ std::list<caches::CacheLevel> parse_cache_levels_algorithms(const std::filesyste
         std::string level_algorithm;
 
         file >> level_algorithm;
-        caches::CacheLevel level = {
+        levels.emplace_back(caches::CacheLevel{
             .type = caches::string_to_cache_type(level_algorithm),
             .capacity = 0
-        };
-        levels.emplace_back(level);
+        });
     }
 
     return levels;
