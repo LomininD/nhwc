@@ -1,103 +1,94 @@
 module;
 
-#include <list>
-#include <unordered_map>
-#include <optional>
 #include <cstddef>
+#include <list>
+#include <optional>
+#include <unordered_map>
 
 export module lru_queue;
 
-namespace caches
-{
+namespace caches {
 
-template <typename KeyT = int, typename QueueItemT = KeyT> class BaseLRUQueue
-{
+template <typename KeyT = int, typename QueueItemT = KeyT>
+class BaseLRUQueue {
 protected:
-    std::list<QueueItemT> cache_;
+  std::list<QueueItemT> cache_;
 
-    using QueueIt = typename std::list<QueueItemT>::iterator;
-    std::unordered_map<KeyT, QueueIt> hash_;
+  using QueueIt = typename std::list<QueueItemT>::iterator;
+  std::unordered_map<KeyT, QueueIt> hash_;
 
-    virtual KeyT get_key(QueueItemT& item) = 0;
+  virtual KeyT get_key(QueueItemT& item) = 0;
 
 public:
-    std::size_t size() const { return cache_.size(); }
+  std::size_t size() const { return cache_.size(); }
 
-    bool empty() const { return size() == 0; }
-    bool has(KeyT key) const { return hash_.find(key) != hash_.end(); }
+  bool empty() const { return size() == 0; }
+  bool has(KeyT key) const { return hash_.find(key) != hash_.end(); }
 
-    bool lookup(KeyT key)
-    {
-        auto hit = hash_.find(key);
-        if (hit != hash_.end())
-        {
-            auto eltit = hit->second;
-            cache_.splice(cache_.begin(), cache_, eltit);
-            return true;
-        }
-        return false;
+  bool lookup(KeyT key) {
+    auto hit = hash_.find(key);
+    if (hit != hash_.end()) {
+      auto eltit = hit->second;
+      cache_.splice(cache_.begin(), cache_, eltit);
+      return true;
     }
+    return false;
+  }
 
-    void insert(QueueItemT item)
-    {
-        cache_.emplace_front(item);
-        hash_.emplace(get_key(item), cache_.begin());
-    }
+  void insert(QueueItemT item) {
+    cache_.emplace_front(item);
+    hash_.emplace(get_key(item), cache_.begin());
+  }
 
-    std::optional<QueueItemT> pop_most_recently_used()
-    {
-        if (empty())
-            return std::nullopt;
+  std::optional<QueueItemT> pop_most_recently_used() {
+    if (empty())
+      return std::nullopt;
 
-        hash_.erase(get_key(cache_.front()));
-        auto item = cache_.front();
-        cache_.pop_front();
+    hash_.erase(get_key(cache_.front()));
+    auto item = cache_.front();
+    cache_.pop_front();
 
-        return item;
-    }
+    return item;
+  }
 
-    std::optional<QueueItemT> pop_last_recently_used()
-    {
-        if (empty())
-            return std::nullopt;
+  std::optional<QueueItemT> pop_last_recently_used() {
+    if (empty())
+      return std::nullopt;
 
-        hash_.erase(get_key(cache_.back()));
-        auto item = cache_.back();
-        cache_.pop_back();
+    hash_.erase(get_key(cache_.back()));
+    auto item = cache_.back();
+    cache_.pop_back();
 
-        return item;
-    }
+    return item;
+  }
 
-    void erase(KeyT key)
-    {
-        auto hit = hash_.find(key);
-        if (hit == hash_.end())
-            return;
-        auto eltit = hit->second;
-        cache_.erase(eltit);
-        hash_.erase(hit);
-    }
+  void erase(KeyT key) {
+    auto hit = hash_.find(key);
+    if (hit == hash_.end())
+      return;
+    auto eltit = hit->second;
+    cache_.erase(eltit);
+    hash_.erase(hit);
+  }
 
-    virtual ~BaseLRUQueue() = default;
+  virtual ~BaseLRUQueue() = default;
 };
 
 template <typename T, typename KeyT = int>
-struct LRUQueueItem
-{
-    KeyT key;
-    T page;
+struct LRUQueueItem {
+  KeyT key;
+  T page;
 };
 
 export template <typename T, typename KeyT = int>
-class LRUQueue : public BaseLRUQueue<KeyT, LRUQueueItem<T, KeyT>>
-{
-    using QueueItem = LRUQueueItem<T, KeyT>;
-    KeyT get_key(QueueItem& item) { return item.key; }
+class LRUQueue : public BaseLRUQueue<KeyT, LRUQueueItem<T, KeyT>> {
+  using QueueItem = LRUQueueItem<T, KeyT>;
+  KeyT get_key(QueueItem& item) { return item.key; }
 };
 
-export template <typename KeyT = int> class GhostLRUQueue : public BaseLRUQueue<KeyT, KeyT>
-{
-    KeyT get_key(KeyT& item) { return item; }
+export template <typename KeyT = int>
+class GhostLRUQueue : public BaseLRUQueue<KeyT, KeyT> {
+  KeyT get_key(KeyT& item) { return item; }
 };
 
-} // namespace caches
+}  // namespace caches
