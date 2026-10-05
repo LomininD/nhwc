@@ -23,8 +23,8 @@ class ARCCache : public BaseCache<T, KeyT> {
   std::size_t p_ = 0;
 
   void replace(KeyT key) {
-    if (!recents_.empty() &&
-        (recents_.size() > p_ || (evicted_frequenters_.has(key) && p_ == recents_.size()))) {
+    if (!recents_.empty() && (recents_.size() > p_ || (evicted_frequenters_.has(key) &&
+        p_ == recents_.size()))) {
       auto victim = recents_.pop_last_recently_used();
       evicted_recents_.insert(victim->key);
     } else {
@@ -93,8 +93,8 @@ public:
         recents_.pop_last_recently_used();
       }
     } else {
-      auto current_size =
-      recents_.size() + frequenters_.size() + evicted_recents_.size() + evicted_frequenters_.size();
+      auto current_size = recents_.size() + frequenters_.size() + evicted_recents_.size() +
+                          evicted_frequenters_.size();
       if (current_size >= capacity_) {
         if (current_size == 2 * capacity_)
           evicted_frequenters_.pop_last_recently_used();

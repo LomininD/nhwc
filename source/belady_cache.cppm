@@ -27,7 +27,7 @@ class BeladyCache {
 
   std::unordered_map<KeyT, std::list<std::size_t>> page_request_ind_map;
 
-  void init_page_request_ind_map(const std::vector<T> &page_request_sequence) {
+  void init_page_request_ind_map(const std::vector<T>& page_request_sequence) {
     std::size_t request_vec_sz = page_request_sequence.size();
     for (std::size_t i = 0; i < request_vec_sz; ++i) {
       KeyT cur_page_key = page_request_sequence[i];
@@ -40,7 +40,7 @@ class BeladyCache {
     std::size_t farthest_ind = 0;
 
     for (auto it = cache_list_.begin(); it != cache_list_.end(); ++it) {
-      auto &cur_ind_list = page_request_ind_map[it->key];
+      auto& cur_ind_list = page_request_ind_map[it->key];
       if (cur_ind_list.empty())
         return it;
 

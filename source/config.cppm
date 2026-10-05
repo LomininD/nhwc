@@ -12,8 +12,8 @@ import multi_level_cache;
 
 export namespace caches::config {
 
-std::list<caches::CacheLevel> parse_cache_levels_algorithms(
-const std::filesystem::path &config_path) {
+std::list<caches::CacheLevel>
+parse_cache_levels_algorithms(const std::filesystem::path& config_path) {
   std::ifstream file(config_path);
 
   if (!file) {
