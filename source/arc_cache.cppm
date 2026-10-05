@@ -13,26 +13,6 @@ export namespace caches {
 
 template <typename T, typename KeyT = int>
 class ARCCache : public BaseCache<T, KeyT> {
-  const std::size_t capacity_;
-
-  LRUQueue<T, KeyT> recents_;                // T1: pages seen only once recently
-  LRUQueue<T, KeyT> frequenters_;            // T2: pages seen at least twice recently
-  GhostLRUQueue<KeyT> evicted_recents_;      // B1: ghost cache for T1
-  GhostLRUQueue<KeyT> evicted_frequenters_;  // B2: ghost cache for T2
-
-  std::size_t p_ = 0;
-
-  void replace(KeyT key) {
-    if (!recents_.empty() && (recents_.size() > p_ || (evicted_frequenters_.has(key) &&
-        p_ == recents_.size()))) {
-      auto victim = recents_.pop_last_recently_used();
-      evicted_recents_.insert(victim->key);
-    } else {
-      auto victim = frequenters_.pop_last_recently_used();
-      evicted_frequenters_.insert(victim->key);
-    }
-  }
-
 public:
   explicit ARCCache(std::size_t capacity) : capacity_(capacity) {}
   std::size_t max_capacity() const { return capacity_; }
@@ -107,6 +87,27 @@ public:
     recents_.insert({key, page});
 
     return false;
+  }
+
+private:
+  const std::size_t capacity_;
+
+  LRUQueue<T, KeyT> recents_;                // T0: pages seen only once recently
+  LRUQueue<T, KeyT> frequenters_;            // T1: pages seen at least twice recently
+  GhostLRUQueue<KeyT> evicted_recents_;      // B0: ghost cache for T1
+  GhostLRUQueue<KeyT> evicted_frequenters_;  // B1: ghost cache for T2
+
+  std::size_t p_ = 0;
+
+  void replace(KeyT key) {
+    if (!recents_.empty() && (recents_.size() > p_ || (evicted_frequenters_.has(key) &&
+        p_ == recents_.size()))) {
+      auto victim = recents_.pop_last_recently_used();
+      evicted_recents_.insert(victim->key);
+    } else {
+      auto victim = frequenters_.pop_last_recently_used();
+      evicted_frequenters_.insert(victim->key);
+    }
   }
 };
 

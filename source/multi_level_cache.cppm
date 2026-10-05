@@ -42,8 +42,6 @@ CacheType string_to_cache_type(const std::string_view str) {
 
 template <typename T, typename KeyT = int>
 class MultiLevelCache {
-  std::list<std::unique_ptr<BaseCache<T, KeyT>>> cache_;
-
 public:
   MultiLevelCache(std::list<CacheLevel> levels) {
     for (auto level : levels) {
@@ -87,6 +85,9 @@ public:
     }
     return false;
   }
+
+private:
+  std::list<std::unique_ptr<BaseCache<T, KeyT>>> cache_;
 };
 
 }  // namespace caches
