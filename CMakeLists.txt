@@ -4,55 +4,59 @@ project(nhwc LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(BUILD_TESTS "Build tests" ON)
+
 include(cmake/CPM.cmake)
+include(cmake/third_party.cmake)
 
 add_library(caches STATIC)
 target_sources(caches
-    PUBLIC
-        FILE_SET CXX_MODULES
-        FILES
-            source/arc_cache.cppm
-            source/lirs_cache.cppm
-            source/two_queue_cache.cppm
-            source/lfu_cache.cppm
-            source/lru_cache.cppm
-            source/multi_level_cache.cppm
-            source/base_cache.cppm
-            source/lru_queue.cppm
-            source/belady_cache.cppm
+  PUBLIC
+    FILE_SET CXX_MODULES
+    FILES
+      source/arc_cache.cppm
+      source/lirs_cache.cppm
+      source/two_queue_cache.cppm
+      source/lfu_cache.cppm
+      source/lru_cache.cppm
+      source/multi_level_cache.cppm
+      source/base_cache.cppm
+      source/lru_queue.cppm
+      source/belady_cache.cppm
 )
 target_compile_features(caches PUBLIC cxx_std_23)
 
-include(cmake/CLI11.cmake)
 find_package(CLI11 REQUIRED)
 
 add_executable(${PROJECT_NAME} source/main.cpp)
 target_sources(${PROJECT_NAME}
-    PRIVATE
-        FILE_SET CXX_MODULES
-        FILES
-            source/config.cppm
-            source/util.cppm
+  PRIVATE
+    FILE_SET CXX_MODULES
+    FILES
+      source/config.cppm
+      source/util.cppm
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE caches CLI11::Module)
 
 add_executable(ideal_cache source/ideal_cache.cpp)
 target_sources(ideal_cache
-    PRIVATE
-        FILE_SET CXX_MODULES
-        FILES
-            source/belady_cache.cppm
-            source/util.cppm
+  PRIVATE
+    FILE_SET CXX_MODULES
+    FILES
+      source/belady_cache.cppm
+      source/util.cppm
 )
 target_compile_features(ideal_cache PUBLIC cxx_std_23)
 
 foreach(target ${PROJECT_NAME} ideal_cache)
-    target_compile_options(${target}
-        PRIVATE
-            $<$<CXX_COMPILER_ID:MSVC>:/Wall>
-            $<$<CXX_COMPILER_ID:GNU,Clang>: -Wall -Wextra -pedantic>
-    )
+  target_compile_options(${target}
+    PRIVATE
+      $<$<CXX_COMPILER_ID:MSVC>:/Wall>
+      $<$<CXX_COMPILER_ID:GNU,Clang>: -Wall -Wextra -pedantic>
+  )
 endforeach()
 
-enable_testing()
-add_subdirectory(tests)
+if(BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
