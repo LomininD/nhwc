@@ -5,6 +5,7 @@ module;
 #include <fstream>
 #include <list>
 #include <print>
+#include <ranges>
 
 export module config;
 
@@ -25,9 +26,8 @@ parse_cache_levels_algorithms(const std::filesystem::path& config_path) {
   std::size_t cache_levels;
 
   file >> cache_levels;
-  for (std::size_t i = 0; i < cache_levels; i++) {
+  for (const auto _ : std::views::iota(0uz, cache_levels)) {
     std::string level_algorithm;
-
     file >> level_algorithm;
     levels.emplace_back(
     caches::CacheLevel{.type = caches::string_to_cache_type(level_algorithm), .capacity = 0});
