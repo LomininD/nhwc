@@ -1,24 +1,32 @@
 module;
 
+#include <print>
 #include <iostream>
-#include <limits>
+#include <optional>
+#include <string>
+#include <charconv>
 
 export module util;
 
 namespace util {
 
-export bool read_integer(long long& value) {
-  if (!(std::cin >> value))
-    return false;
-  // Reject tokens such as "12x"; reaching EOF after a number is valid.
-  const auto next = std::cin.peek();
-  return !std::cin.bad() &&
-         (next == std::char_traits<char>::eof() || std::isspace(static_cast<unsigned char>(next)));
-}
+export template<typename T>
+std::optional<T> read_integer(std::istream& stream = std::cin) {
+  std::string data;
+  T result;
 
-export bool can_not_be_valid_size_t(long long value) {
-  return value < 0 ||
-         static_cast<unsigned long long>(value) > std::numeric_limits<std::size_t>::max();
+  stream >> data;
+
+  auto [ptr, ec] = std::from_chars(data.data(), data.data() + data.size(), result);
+  if (ec == std::errc::invalid_argument) {
+    std::println(stderr, "error: the value '{}' is not allowed.", data);
+    return std::nullopt;
+  } else if (ec == std::errc::result_out_of_range) {
+    std::println(stderr, "error: the value '{}' is out of a range.", data);
+    return std::nullopt;
+  }
+
+  return result;
 }
 
 }  // namespace util

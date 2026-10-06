@@ -1,5 +1,7 @@
 #include <cstring>
-#include <iostream>
+#include <cstddef>
+#include <print>
+#include <ranges>
 // FIXME: this include should be redundant, but the project doesn't compile without it
 #include <list>
 
@@ -9,8 +11,8 @@ import multi_level_cache;
 import config;
 import util;
 
-using Page = long long;
-using PageId = long long;
+using Page = unsigned int;
+using PageId = unsigned int;
 
 int main(int argc, char* argv[]) {
   CLI::App app{"NHWC"};
@@ -26,39 +28,29 @@ int main(int argc, char* argv[]) {
 
   auto levels = caches::config::parse_cache_levels_algorithms(config_path);
   for (auto& level : levels) {
-    long long n;
-    auto read_ok = util::read_integer(n);
-    if (!read_ok || util::can_not_be_valid_size_t(n)) {
-      std::cerr << "Expected nonnegative cache size.\n";
-      return 1;
-    }
-    level.capacity = n;
+    auto result = util::read_integer<std::size_t>();
+    if (!result) return 1;
+    level.capacity = result.value();
   }
 
   caches::MultiLevelCache<Page, PageId> cache{levels};
 
-  long long data_len;
-  auto read_ok = util::read_integer(data_len);
-  if (!read_ok || util::can_not_be_valid_size_t(data_len)) {
-    std::cerr << "Expected nonnegative cache size.\n";
-    return 1;
-  }
+  auto result = util::read_integer<std::size_t>();
+  if (!result) return 1;
+
+  auto data_len = result.value();
 
   auto load = [](PageId key) { return key; };
 
   unsigned int hits = 0;
-  for (int i = 0; i < data_len; i++) {
-    PageId key;
+  for (const auto& _ : std::views::iota(0uz, data_len)) {
+    auto key = util::read_integer<PageId>();
+    if (!key) return 1;
 
-    auto read_ok = util::read_integer(key);
-    if (!read_ok || util::can_not_be_valid_size_t(key)) {
-      std::cerr << "Expected nonnegative page key.\n";
-      return 1;
-    }
-
-    bool hit = cache.lookup_update(key, load);
+    bool hit = cache.lookup_update(key.value(), load);
     if (hit)
       ++hits;
   }
-  std::cout << hits << std::endl;
+
+  std::println("{}", hits);
 }
