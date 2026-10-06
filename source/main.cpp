@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     level.capacity = n;
   }
 
-  caches::MultiLevelCache<Page, PageId> cache(levels);
+  caches::MultiLevelCache<Page, PageId> cache{levels};
 
   long long data_len;
   auto read_ok = util::read_integer(data_len);
