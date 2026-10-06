@@ -19,6 +19,7 @@ protected:
 
   virtual KeyT get_key(QueueItemT& item) = 0;
 
+  virtual ~BaseLRUQueue() = default;
 public:
   std::size_t size() const { return cache_.size(); }
 
@@ -70,8 +71,6 @@ public:
     cache_.erase(eltit);
     hash_.erase(hit);
   }
-
-  virtual ~BaseLRUQueue() = default;
 };
 
 template <typename T, typename KeyT = int>
