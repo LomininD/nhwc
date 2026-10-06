@@ -6,6 +6,7 @@ module;
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <ranges>
 #include <string_view>
 
 export module multi_level_cache;
@@ -43,8 +44,8 @@ CacheType string_to_cache_type(const std::string_view str) {
 template <typename T, typename KeyT = int>
 class MultiLevelCache {
 public:
-  MultiLevelCache(std::list<CacheLevel> levels) {
-    for (auto level : levels) {
+  MultiLevelCache(std::ranges::input_range auto&& levels) {
+    for (const auto& level : levels) {
       switch (level.type) {
         case CacheType::ARC:
           cache_.emplace_back(std::make_unique<ARCCache<T, KeyT>>(level.capacity));
