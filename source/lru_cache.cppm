@@ -9,9 +9,9 @@ export module lru_cache;
 
 import base_cache;
 
-export namespace caches {
+namespace caches {
 
-template <typename T, typename KeyT = int>
+export template <typename T, typename KeyT = int>
 class LRUCache : public BaseCache<T, KeyT> {
   const std::size_t size_;
 

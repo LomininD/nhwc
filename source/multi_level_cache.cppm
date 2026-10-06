@@ -17,16 +17,16 @@ import lfu_cache;
 import lru_cache;
 import base_cache;
 
-export namespace caches {
+namespace caches {
 
-enum class CacheType { kARC, k2Q, kLRU, kLFU, kLIRS };
+export enum class CacheType { kARC, k2Q, kLRU, kLFU, kLIRS };
 
-struct CacheLevel {
+export struct CacheLevel {
   CacheType type;
   std::size_t capacity;
 };
 
-CacheType string_to_cache_type(const std::string_view str) {
+export CacheType string_to_cache_type(const std::string_view str) {
   if (str == "LRU")
     return CacheType::kLRU;
   if (str == "ARC")
@@ -40,7 +40,7 @@ CacheType string_to_cache_type(const std::string_view str) {
   throw std::invalid_argument("unknown cache type: " + std::string(str));
 }
 
-template <typename T, typename KeyT = int>
+export template <typename T, typename KeyT = int>
 class MultiLevelCache {
 public:
   MultiLevelCache(std::ranges::input_range auto&& levels) {

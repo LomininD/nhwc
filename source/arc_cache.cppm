@@ -9,9 +9,9 @@ export module arc_cache;
 import base_cache;
 import lru_queue;
 
-export namespace caches {
+namespace caches {
 
-template <typename T, typename KeyT = int>
+export template <typename T, typename KeyT = int>
 class ARCCache : public BaseCache<T, KeyT> {
 public:
   explicit ARCCache(std::size_t capacity) : capacity_(capacity) {}

@@ -8,9 +8,9 @@ export module two_queue_cache;
 import lru_queue;
 import base_cache;
 
-export namespace caches {
+namespace caches {
 
-template <typename T, typename KeyT = int>
+export template <typename T, typename KeyT = int>
 class TwoQueueCache : public BaseCache<T, KeyT> {
   std::size_t capacity_, kin_, kout_;
 

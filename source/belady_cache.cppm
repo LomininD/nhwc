@@ -8,9 +8,9 @@ module;
 
 export module belady_cache;
 
-export namespace caches {
+namespace caches {
 
-template <typename T, typename KeyT>
+export template <typename T, typename KeyT>
 class BeladyCache {
   const std::size_t capacity_;
 

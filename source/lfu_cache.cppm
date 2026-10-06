@@ -9,9 +9,9 @@ export module lfu_cache;
 
 import base_cache;
 
-export namespace caches {
+namespace caches {
 
-template <typename T, typename KeyT>
+export template <typename T, typename KeyT>
 class LFUCache : public BaseCache<T, KeyT> {
   const std::size_t capacity_;
   int min_freq_;

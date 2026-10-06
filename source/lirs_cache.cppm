@@ -11,9 +11,9 @@ export module lirs_cache;
 
 import base_cache;
 
-export namespace caches {
+namespace caches {
 
-template <typename T, typename KeyT = int>
+export template <typename T, typename KeyT = int>
 class LIRSCache : public BaseCache<T, KeyT> {
   std::size_t capacity_, lirs_max_;
 

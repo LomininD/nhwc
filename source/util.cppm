@@ -5,9 +5,9 @@ module;
 
 export module util;
 
-export namespace util {
+namespace util {
 
-bool read_integer(long long& value) {
+export bool read_integer(long long& value) {
   if (!(std::cin >> value))
     return false;
   // Reject tokens such as "12x"; reaching EOF after a number is valid.
@@ -16,7 +16,7 @@ bool read_integer(long long& value) {
          (next == std::char_traits<char>::eof() || std::isspace(static_cast<unsigned char>(next)));
 }
 
-bool can_not_be_valid_size_t(long long value) {
+export bool can_not_be_valid_size_t(long long value) {
   return value < 0 ||
          static_cast<unsigned long long>(value) > std::numeric_limits<std::size_t>::max();
 }

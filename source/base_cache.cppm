@@ -4,9 +4,9 @@ module;
 
 export module base_cache;
 
-export namespace caches {
+namespace caches {
 
-template <typename T, typename KeyT = int>
+export template <typename T, typename KeyT = int>
 class BaseCache {
 public:
   virtual bool lookup_update(KeyT key, std::function<T(KeyT)> slow_get_page) = 0;
