@@ -6,7 +6,6 @@ module;
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <ranges>
 #include <string_view>
 
 export module multi_level_cache;
@@ -20,7 +19,7 @@ import base_cache;
 
 export namespace caches {
 
-enum class CacheType { ARC, TWO_QUEUE, LRU, LFU, LIRS };
+enum class CacheType { kARC, k2Q, kLRU, kLFU, kLIRS };
 
 struct CacheLevel {
   CacheType type;
@@ -29,15 +28,15 @@ struct CacheLevel {
 
 CacheType string_to_cache_type(const std::string_view str) {
   if (str == "LRU")
-    return CacheType::LRU;
+    return CacheType::kLRU;
   if (str == "ARC")
-    return CacheType::ARC;
+    return CacheType::kARC;
   if (str == "2Q")
-    return CacheType::TWO_QUEUE;
+    return CacheType::k2Q;
   if (str == "LFU")
-    return CacheType::LFU;
+    return CacheType::kLFU;
   if (str == "LIRS")
-    return CacheType::LIRS;
+    return CacheType::kLIRS;
   throw std::invalid_argument("unknown cache type: " + std::string(str));
 }
 
@@ -47,19 +46,19 @@ public:
   MultiLevelCache(std::ranges::input_range auto&& levels) {
     for (const auto& level : levels) {
       switch (level.type) {
-        case CacheType::ARC:
+        case CacheType::kARC:
           cache_.emplace_back(std::make_unique<ARCCache<T, KeyT>>(level.capacity));
           break;
-        case CacheType::TWO_QUEUE:
+        case CacheType::k2Q:
           cache_.emplace_back(std::make_unique<TwoQueueCache<T, KeyT>>(level.capacity));
           break;
-        case CacheType::LRU:
+        case CacheType::kLRU:
           cache_.emplace_back(std::make_unique<LRUCache<T, KeyT>>(level.capacity));
           break;
-        case CacheType::LFU:
+        case CacheType::kLFU:
           cache_.emplace_back(std::make_unique<LFUCache<T, KeyT>>(level.capacity));
           break;
-        case CacheType::LIRS:
+        case CacheType::kLIRS:
           cache_.emplace_back(std::make_unique<LIRSCache<T, KeyT>>(level.capacity));
           break;
       }

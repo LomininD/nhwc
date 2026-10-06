@@ -19,7 +19,7 @@ class LIRSCache : public BaseCache<T, KeyT> {
 
   std::list<T> cache_;
 
-  enum class BlockStatus { LIR, HIR };
+  enum class BlockStatus { kLIR, kHIR };
   using CacheIt = typename std::list<T>::iterator;
 
   struct StackRecord {
@@ -48,7 +48,7 @@ class LIRSCache : public BaseCache<T, KeyT> {
   std::size_t lir_count_ = 0;
 
   void prune_stack() {
-    while (!stack_.empty() && stack_.back().status == BlockStatus::HIR) {
+    while (!stack_.empty() && stack_.back().status == BlockStatus::kHIR) {
       hash_stack_.erase(stack_.back().key);
       stack_.pop_back();
     }
@@ -61,7 +61,7 @@ class LIRSCache : public BaseCache<T, KeyT> {
     StackRecord bottom = stack_.back();
     stack_.pop_back();
     hash_stack_.erase(bottom.key);
-    bottom.status = BlockStatus::HIR;
+    bottom.status = BlockStatus::kHIR;
     queue_.emplace_front(bottom.key, bottom.data);
     hash_queue_.emplace(bottom.key, queue_.begin());
     --lir_count_;
@@ -100,7 +100,7 @@ public:
     auto hit_queue = hash_queue_.find(key);
     bool in_queue = hit_queue != hash_queue_.end();
 
-    if (in_stack && hit_stack->second->status == BlockStatus::LIR) {
+    if (in_stack && hit_stack->second->status == BlockStatus::kLIR) {
       stack_.splice(stack_.begin(), stack_, hit_stack->second);
       prune_stack();
       return true;
@@ -109,7 +109,7 @@ public:
     if (in_queue) {
       if (in_stack) {
         stack_.splice(stack_.begin(), stack_, hit_stack->second);
-        hit_stack->second->status = BlockStatus::LIR;
+        hit_stack->second->status = BlockStatus::kLIR;
         ++lir_count_;
 
         queue_.erase(hit_queue->second);
@@ -119,7 +119,7 @@ public:
         prune_stack();
       } else {
         queue_.splice(queue_.begin(), queue_, hit_queue->second);
-        stack_.emplace_front(key, hit_queue->second->data, BlockStatus::HIR);
+        stack_.emplace_front(key, hit_queue->second->data, BlockStatus::kHIR);
         hash_stack_.emplace(key, stack_.begin());
         prune_stack();
       }
@@ -133,11 +133,11 @@ public:
       cache_.emplace_front(std::move(page));
 
       if (lir_count_ < lirs_max_) {
-        stack_.emplace_front(key, cache_.begin(), BlockStatus::LIR);
+        stack_.emplace_front(key, cache_.begin(), BlockStatus::kLIR);
         hash_stack_.emplace(key, stack_.begin());
         ++lir_count_;
       } else {
-        stack_.emplace_front(key, cache_.begin(), BlockStatus::HIR);
+        stack_.emplace_front(key, cache_.begin(), BlockStatus::kHIR);
         hash_stack_.emplace(key, stack_.begin());
         prune_stack();
         queue_.emplace_front(key, cache_.begin());
@@ -153,13 +153,13 @@ public:
     if (in_stack) {
       stack_.splice(stack_.begin(), stack_, hit_stack->second);
       hit_stack->second->data = cache_.begin();
-      hit_stack->second->status = BlockStatus::LIR;
+      hit_stack->second->status = BlockStatus::kLIR;
       ++lir_count_;
 
       demote_lir_bottom();
       prune_stack();
     } else {
-      stack_.emplace_front(key, cache_.begin(), BlockStatus::HIR);
+      stack_.emplace_front(key, cache_.begin(), BlockStatus::kHIR);
       hash_stack_.emplace(key, stack_.begin());
       prune_stack();
       queue_.emplace_front(key, cache_.begin());
