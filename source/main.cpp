@@ -1,4 +1,4 @@
-#include <cstring>
+#include <iostream>
 #include <cstddef>
 #include <print>
 #include <ranges>
@@ -50,6 +50,10 @@ int main(int argc, char* argv[]) {
     bool hit = cache.lookup_update(key.value(), load);
     if (hit)
       ++hits;
+  }
+
+  if (std::cin.peek() != std::char_traits<char>::eof()) {
+    std::println("warning: too much arguments, only {} requests were handled.", data_len);
   }
 
   std::println("{}", hits);

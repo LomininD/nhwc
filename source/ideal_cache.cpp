@@ -1,4 +1,5 @@
 #include <print>
+#include <iostream>
 #include <ranges>
 
 import belady_cache;
@@ -21,6 +22,10 @@ int main() {
     auto key = util::read_integer<PageId>();
     if (!key) return 1;
     requests[i] = key.value();
+  }
+
+  if (std::cin.peek() != std::char_traits<char>::eof()) {
+    std::println("warning: too much arguments, only {} requests were handled.", data_len.value());
   }
 
   std::println("{}", cache.calculate_hits(requests));
