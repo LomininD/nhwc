@@ -5,8 +5,8 @@
 import belady_cache;
 import util;
 
-using Page = long long;
-using PageId = long long;
+using Page = unsigned int;
+using PageId = unsigned int;
 
 int main() {
   auto cache_size = util::read_integer<std::size_t>();
