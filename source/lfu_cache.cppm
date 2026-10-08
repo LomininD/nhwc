@@ -11,15 +11,15 @@ import base_cache;
 
 namespace caches {
 
-export template <typename KeyT, typename T>
-class LFUCache : public BaseCache<KeyT, T> {
+export template <typename Key, typename Value>
+class LFUCache : public BaseCache<Key, Value> {
 public:
   LFUCache(std::size_t capacity) : capacity_(capacity), min_freq_(1) {}
 
   std::size_t max_capacity() const { return capacity_; }
   bool is_full() const { return (capacity_ == cache_map_.size()); }
 
-  bool lookup_update(KeyT key, std::function<T(KeyT)> slow_get_page) {
+  bool lookup_update(Key& key, std::function<Value(Key)> slow_get_page) {
     if (max_capacity() == 0)
       return false;
 
@@ -58,13 +58,13 @@ private:
   int min_freq_;
 
   struct Record {
-    KeyT key;
-    T page;
+    Key key;
+    Value page;
     unsigned int freq;
   };
 
   using NodeIt = typename std::list<Record>::iterator;
-  std::unordered_map<KeyT, NodeIt> cache_map_;
+  std::unordered_map<Key, NodeIt> cache_map_;
   std::unordered_map<unsigned int, std::list<Record>> freq_to_list_map_;
 };
 
