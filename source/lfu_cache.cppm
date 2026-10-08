@@ -13,19 +13,6 @@ namespace caches {
 
 export template <typename KeyT, typename T>
 class LFUCache : public BaseCache<KeyT, T> {
-  const std::size_t capacity_;
-  int min_freq_;
-
-  struct Record {
-    KeyT key;
-    T page;
-    unsigned int freq;
-  };
-
-  using NodeIt = typename std::list<Record>::iterator;
-  std::unordered_map<KeyT, NodeIt> cache_map_;
-  std::unordered_map<unsigned int, std::list<Record>> freq_to_list_map_;
-
 public:
   LFUCache(std::size_t capacity) : capacity_(capacity), min_freq_(1) {}
 
@@ -65,6 +52,20 @@ public:
       return false;
     }
   }
+
+private:
+  const std::size_t capacity_;
+  int min_freq_;
+
+  struct Record {
+    KeyT key;
+    T page;
+    unsigned int freq;
+  };
+
+  using NodeIt = typename std::list<Record>::iterator;
+  std::unordered_map<KeyT, NodeIt> cache_map_;
+  std::unordered_map<unsigned int, std::list<Record>> freq_to_list_map_;
 };
 
 }  // namespace caches
