@@ -13,8 +13,8 @@ import base_cache;
 
 namespace caches {
 
-export template <typename T, typename KeyT = int>
-class LIRSCache : public BaseCache<T, KeyT> {
+export template <typename KeyT, typename T>
+class LIRSCache : public BaseCache<KeyT, T> {
   std::size_t capacity_, lirs_max_;
 
   std::list<T> cache_;

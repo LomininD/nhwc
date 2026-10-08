@@ -11,8 +11,8 @@ import base_cache;
 
 namespace caches {
 
-export template <typename T, typename KeyT>
-class LFUCache : public BaseCache<T, KeyT> {
+export template <typename KeyT, typename T>
+class LFUCache : public BaseCache<KeyT, T> {
   const std::size_t capacity_;
   int min_freq_;
 

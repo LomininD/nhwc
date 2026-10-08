@@ -9,7 +9,7 @@ export module lru_queue;
 
 namespace caches {
 
-template <typename KeyT = int, typename QueueItemT = KeyT>
+template <typename KeyT, typename QueueItemT = KeyT>
 class BaseLRUQueue {
 protected:
   std::list<QueueItemT> cache_;
@@ -73,14 +73,14 @@ public:
   }
 };
 
-template <typename T, typename KeyT = int>
+template <typename KeyT, typename T>
 struct LRUQueueItem {
   KeyT key;
   T page;
 };
 
-export template <typename T, typename KeyT = int>
-class LRUQueue : public BaseLRUQueue<KeyT, LRUQueueItem<T, KeyT>> {
+export template <typename KeyT, typename T>
+class LRUQueue : public BaseLRUQueue<KeyT, LRUQueueItem<KeyT, T>> {
   using QueueItem = LRUQueueItem<T, KeyT>;
   KeyT get_key(QueueItem& item) { return item.key; }
 };

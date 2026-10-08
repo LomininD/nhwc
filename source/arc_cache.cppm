@@ -11,8 +11,8 @@ import lru_queue;
 
 namespace caches {
 
-export template <typename T, typename KeyT = int>
-class ARCCache : public BaseCache<T, KeyT> {
+export template <typename KeyT, typename T>
+class ARCCache : public BaseCache<KeyT, T> {
 public:
   explicit ARCCache(std::size_t capacity) : capacity_(capacity) {}
   std::size_t max_capacity() const { return capacity_; }

@@ -40,7 +40,7 @@ export CacheType string_to_cache_type(const std::string_view str) {
   throw std::invalid_argument("unknown cache type: " + std::string(str));
 }
 
-export template <typename T, typename KeyT = int>
+export template <typename KeyT, typename T>
 class MultiLevelCache {
 public:
   MultiLevelCache(std::ranges::input_range auto&& levels) {

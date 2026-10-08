@@ -11,8 +11,8 @@ import base_cache;
 
 namespace caches {
 
-export template <typename T, typename KeyT = int>
-class LRUCache : public BaseCache<T, KeyT> {
+export template <typename KeyT, typename T>
+class LRUCache : public BaseCache<KeyT, T> {
   const std::size_t size_;
 
   // Each entry is {key, page}; most recently used entry is at the front.

@@ -11,8 +11,8 @@ import multi_level_cache;
 import config;
 import util;
 
-using Page = unsigned int;
 using PageId = unsigned int;
+using Page = unsigned int;
 
 int main(int argc, char* argv[]) {
   CLI::App app{"NHWC"};
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     level.capacity = result.value();
   }
 
-  caches::MultiLevelCache<Page, PageId> cache{levels};
+  caches::MultiLevelCache<PageId, Page> cache{levels};
 
   auto result = util::read_integer<std::size_t>();
   if (!result) return 1;

@@ -10,8 +10,8 @@ import base_cache;
 
 namespace caches {
 
-export template <typename T, typename KeyT = int>
-class TwoQueueCache : public BaseCache<T, KeyT> {
+export template <typename KeyT, typename T>
+class TwoQueueCache : public BaseCache<KeyT, T> {
   std::size_t capacity_, kin_, kout_;
 
   LRUQueue<T, KeyT> am_, a1_in_;
