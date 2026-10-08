@@ -38,7 +38,7 @@ public:
   explicit TwoQueueCache(std::size_t capacity) :
     capacity_(capacity), kin_(capacity / 4), kout_(capacity / 2) {};
 
-  bool lookup_update(KeyT key, std::function<T(KeyT)> slow_get_page) {
+  bool lookup_update(KeyT& key, std::function<T(KeyT)> slow_get_page) {
     auto hit_am = am_.lookup(key);
     if (hit_am)
       return true;

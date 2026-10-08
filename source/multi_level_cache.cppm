@@ -65,7 +65,7 @@ public:
     }
   }
 
-  bool lookup_update(KeyT key, std::function<T(KeyT)> slow_get_page) {
+  bool lookup_update(KeyT& key, std::function<T(KeyT)> slow_get_page) {
     bool loaded = false;
     T page;
 

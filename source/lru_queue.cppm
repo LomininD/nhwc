@@ -24,9 +24,9 @@ public:
   std::size_t size() const { return cache_.size(); }
 
   bool empty() const { return size() == 0; }
-  bool has(KeyT key) const { return hash_.find(key) != hash_.end(); }
+  bool has(KeyT& key) const { return hash_.find(key) != hash_.end(); }
 
-  bool lookup(KeyT key) {
+  bool lookup(KeyT& key) {
     auto hit = hash_.find(key);
     if (hit != hash_.end()) {
       auto eltit = hit->second;
@@ -63,7 +63,7 @@ public:
     return item;
   }
 
-  void erase(KeyT key) {
+  void erase(KeyT& key) {
     auto hit = hash_.find(key);
     if (hit == hash_.end())
       return;
