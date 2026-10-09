@@ -13,6 +13,38 @@ import base_cache;
 
 namespace caches {
 
+template <typename KeyT, typename T>
+class LIRSState {
+public:
+  explicit LIRSState(std::size_t capacity) : 
+    capacity_(capacity),
+    lir_max_(capacity > 0 ? capacity - std::max<std::size_t>(1, capacity / 100) : 0) {}
+
+private:
+  std::size_t capacity_;
+  std::size_t lir_max_;
+  std::size_t lir_count_ = 0;
+
+  std::list<T> data;
+  enum class BlockStatus : bool { kLIR, kHIR };
+  using CacheIt = typename std::list<T>::iterator;
+
+  struct Record {
+    KeyT key;
+    CacheIt data;
+    BlockStatus status;
+
+    Record(KeyT k, CacheIt d, BlockStatus s) : key(k), data(d), status(s) {}
+  };
+  using RecordIt = typename std::list<Record>::iterator;
+
+  std::list<Record> stack_;
+  std::unordered_map<KeyT, RecordIt> hash_stack_;
+
+  std::list<Record> queue_;
+  std::unordered_map<KeyT, RecordIt> hash_queue_;
+};
+
 export template <typename KeyT, typename T>
 class LIRSCache : public BaseCache<T, KeyT> {
 public:
