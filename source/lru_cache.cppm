@@ -13,20 +13,22 @@ namespace caches {
 
 export template <typename KeyT, typename T>
 class LRUCache : public BaseCache<KeyT, T> {
-  const std::size_t size_;
+
+public:
+  explicit LRUCache(std::size_t capacity) : BaseCache<KeyT, T>(capacity) {}
+
+private:
+  using BaseCache<KeyT, T>::max_capacity;
 
   // Each entry is {key, page}; most recently used entry is at the front.
   std::list<std::pair<KeyT, T>> cache_;
 
   using ListIt = typename std::list<std::pair<KeyT, T>>::iterator;
   std::unordered_map<KeyT, ListIt> hash_;
-  bool full() const { return (cache_.size() == size_); }
 
-public:
-  explicit LRUCache(std::size_t size) : size_(size) {}
-  std::size_t max_capacity() const { return size_; }
+  bool is_full() const { return (cache_.size() == max_capacity()); }
 
-  bool lookup_update(KeyT& key, std::function<T(KeyT)> slow_get_page) {
+  bool do_lookup_update(const KeyT& key, std::function<T(KeyT)> slow_get_page) {
     if (max_capacity() == 0)
       return false;
 
@@ -39,7 +41,7 @@ public:
 
     T page = slow_get_page(key);
 
-    if (full()) {
+    if (is_full()) {
       hash_.erase(cache_.back().first);
       cache_.pop_back();
     }

@@ -14,15 +14,26 @@ namespace caches {
 export template <typename Key, typename Value>
 class LFUCache : public BaseCache<Key, Value> {
 public:
-  LFUCache(std::size_t capacity) : capacity_(capacity), min_freq_(1) {}
+  using BaseCache<Key, Value>::max_capacity;
 
-  std::size_t max_capacity() const { return capacity_; }
-  bool is_full() const { return (capacity_ == cache_map_.size()); }
+  LFUCache(std::size_t capacity) : BaseCache<Key, Value>(capacity), min_freq_(1) {}
 
-  bool lookup_update(Key& key, std::function<Value(Key)> slow_get_page) {
-    if (max_capacity() == 0)
-      return false;
+  bool is_full() const { return (max_capacity() == cache_map_.size()); }
 
+private:
+  int min_freq_;
+
+  struct Record {
+    Key key;
+    Value page;
+    unsigned int freq;
+  };
+
+  using NodeIt = typename std::list<Record>::iterator;
+  std::unordered_map<Key, NodeIt> cache_map_;
+  std::unordered_map<unsigned int, std::list<Record>> freq_to_list_map_;
+
+  bool do_lookup_update(const Key& key, std::function<Value(Key)> slow_get_page) {
     if (auto it = cache_map_.find(key); it != cache_map_.end()) {
       Record node = *(it->second);
       freq_to_list_map_[node.freq].erase(it->second);
@@ -52,20 +63,6 @@ public:
       return false;
     }
   }
-
-private:
-  const std::size_t capacity_;
-  int min_freq_;
-
-  struct Record {
-    Key key;
-    Value page;
-    unsigned int freq;
-  };
-
-  using NodeIt = typename std::list<Record>::iterator;
-  std::unordered_map<Key, NodeIt> cache_map_;
-  std::unordered_map<unsigned int, std::list<Record>> freq_to_list_map_;
 };
 
 }  // namespace caches

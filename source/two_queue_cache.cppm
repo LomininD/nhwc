@@ -12,12 +12,19 @@ namespace caches {
 
 export template <typename KeyT, typename T>
 class TwoQueueCache : public BaseCache<KeyT, T> {
-  std::size_t capacity_, kin_, kout_;
+public:
+  explicit TwoQueueCache(std::size_t capacity) :
+    BaseCache<KeyT, T>(capacity), kin_(capacity / 4), kout_(capacity / 2) {};
+
+private:
+  using BaseCache<KeyT, T>::max_capacity;
+
+  std::size_t kin_, kout_;
 
   LRUQueue<T, KeyT> am_, a1_in_;
   GhostLRUQueue<KeyT> a1_out_;
 
-  bool page_slots_available() const { return a1_in_.size() + am_.size() < capacity_; }
+  bool page_slots_available() const { return a1_in_.size() + am_.size() < max_capacity(); }
   bool a1_in_above_threshold() const { return a1_in_.size() > kin_; }
   bool a1_out_above_threshold() const { return a1_out_.size() > kout_; }
 
@@ -34,11 +41,7 @@ class TwoQueueCache : public BaseCache<KeyT, T> {
     }
   }
 
-public:
-  explicit TwoQueueCache(std::size_t capacity) :
-    capacity_(capacity), kin_(capacity / 4), kout_(capacity / 2) {};
-
-  bool lookup_update(KeyT& key, std::function<T(KeyT)> slow_get_page) {
+  bool do_lookup_update(const KeyT& key, std::function<T(KeyT)> slow_get_page) {
     auto hit_am = am_.lookup(key);
     if (hit_am)
       return true;

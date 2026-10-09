@@ -15,7 +15,17 @@ namespace caches {
 
 export template <typename KeyT, typename T>
 class LIRSCache : public BaseCache<KeyT, T> {
-  std::size_t capacity_, lirs_max_;
+public:
+  explicit LIRSCache(std::size_t capacity) :
+    BaseCache<KeyT, T>(capacity),
+    lirs_max_(capacity > 0 ? capacity - std::max<std::size_t>(1, capacity / 100) : 0) {}
+
+  bool is_full() const { return lir_count_ + queue_.size() >= max_capacity(); }
+
+private:
+  using BaseCache<KeyT, T>::max_capacity;
+
+  std::size_t lirs_max_;
 
   std::list<T> cache_;
 
@@ -67,8 +77,6 @@ class LIRSCache : public BaseCache<KeyT, T> {
     --lir_count_;
   }
 
-  bool is_full() const { return lir_count_ + queue_.size() >= capacity_; }
-
   void evict_lru_hir() {
     if (queue_.empty())
       return;
@@ -84,17 +92,7 @@ class LIRSCache : public BaseCache<KeyT, T> {
     cache_.erase(victim.data);
   }
 
-public:
-  explicit LIRSCache(std::size_t capacity) :
-    capacity_(capacity),
-    lirs_max_(capacity > 0 ? capacity - std::max<std::size_t>(1, capacity / 100) : 0) {}
-
-  std::size_t max_capacity() const { return capacity_; }
-
-  bool lookup_update(KeyT& key, std::function<T(KeyT)> slow_get_page) {
-    if (max_capacity() == 0)
-      return false;
-
+  bool do_lookup_update(const KeyT& key, std::function<T(KeyT)> slow_get_page) {
     auto hit_stack = hash_stack_.find(key);
     bool in_stack = hit_stack != hash_stack_.end();
     auto hit_queue = hash_queue_.find(key);
