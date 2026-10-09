@@ -33,9 +33,9 @@ jobs:
         exclude:
           - os: windows-latest
             cpp_compiler: g++
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             cpp_compiler: cl
-          - os: macos-latest
+          - os: macos-26
             cpp_compiler: cl
 
     steps:
