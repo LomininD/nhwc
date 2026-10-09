@@ -61,7 +61,7 @@ private:
 
     reclaim_for();
 
-    T page = slow_get_page(key);
+    auto page = slow_get_page(key);
     a1_in_.insert({key, page});
 
     return false;

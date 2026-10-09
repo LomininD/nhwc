@@ -36,7 +36,7 @@ private:
       return true;
     }
 
-    T page = slow_get_page(key);
+    auto page = slow_get_page(key);
 
     if (is_full()) {
       hash_.erase(cache_.back().first);
