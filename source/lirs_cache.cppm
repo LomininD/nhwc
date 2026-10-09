@@ -26,8 +26,9 @@ public:
 
   bool lookup_lir(const KeyT& key) {
     RecordIt stack_it = find_in_stack(key);
-    if (stack_it == stack_.end() || stack_it->status != BlockStatus::kLIR)
+    if (stack_it == stack_.end() || stack_it->status != BlockStatus::kLIR) {
       return false;
+    }
 
     move_to_stack_top(key);
     prune_stack();
@@ -36,8 +37,9 @@ public:
 
   bool lookup_hir(const KeyT& key) {
     RecordIt queue_it = find_in_queue(key);
-    if (queue_it == queue_.end() || queue_it->status != BlockStatus::kHIR)
+    if (queue_it == queue_.end() || queue_it->status != BlockStatus::kHIR) {
       return false;
+    }
 
     RecordIt stack_it = find_in_stack(key);
     if (stack_it != stack_.end()) {
@@ -57,8 +59,10 @@ public:
   }
 
   void insert(const KeyT& key, T page) {
-    if (is_full())
+    if (is_full()) {
       evict_lru_hir();
+    }
+
     CacheIt data = add_to_data(std::move(page));
 
     RecordIt stack_it = find_in_stack(key);
@@ -134,24 +138,30 @@ private:
 
   bool move_to_stack_top(const KeyT& key) {
     RecordIt stack_it = find_in_stack(key);
-    if (stack_it == stack_.end())
+    if (stack_it == stack_.end()) {
       return false;
+    }
+
     stack_.splice(stack_.begin(), stack_, stack_it);
     return true;
   }
 
   bool move_to_queue_top(const KeyT& key) {
     RecordIt queue_it = find_in_queue(key);
-    if (queue_it == queue_.end())
+    if (queue_it == queue_.end()) {
       return false;
+    }
+
     queue_.splice(queue_.begin(), queue_, queue_it);
     return true;
   }
 
   bool remove_from_queue(const KeyT& key) {
     RecordIt queue_it = find_in_queue(key);
-    if (queue_it == queue_.end())
+    if (queue_it == queue_.end()) {
       return false;
+    }
+
     hash_queue_.erase(key);
     queue_.erase(queue_it);
     return true;
@@ -165,8 +175,10 @@ private:
   }
 
   void demote_to_hir() {
-    if (stack_.empty())
+    if (stack_.empty()) {
       return;
+    }
+
     RecordIt bottom = std::prev(stack_.end());
     bottom->status = BlockStatus::kHIR;
     hash_stack_.erase(bottom->key);
@@ -176,16 +188,19 @@ private:
   }
 
   void evict_lru_hir() {
-    if (queue_.empty())
+    if (queue_.empty()) {
       return;
+    }
+
     KeyT key = std::move(queue_.back().key);
     CacheIt data = queue_.back().data;
     hash_queue_.erase(key);
     queue_.pop_back();
 
     RecordIt stack_it = find_in_stack(key);
-    if (stack_it != stack_.end())
+    if (stack_it != stack_.end()) {
       stack_it->data = data_.end();
+    }
     data_.erase(data);
   }
 };
@@ -196,12 +211,17 @@ public:
   explicit LIRSCache(std::size_t capacity) : state_(capacity) {}
 
   bool lookup_update(KeyT key, std::function<T(KeyT)> slow_get_page) {
-    if (state_.capacity() == 0)
+    if (state_.capacity() == 0) {
       return false;
-    if (state_.lookup_lir(key))
+    }
+
+    if (state_.lookup_lir(key)) {
       return true;
-    if (state_.lookup_hir(key))
+    }
+
+    if (state_.lookup_hir(key)) {
       return true;
+    }
 
     state_.insert(key, slow_get_page(key));
     return false;
