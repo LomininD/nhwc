@@ -47,8 +47,8 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Configure CMake (Linux, macOS w/o Clang)
-      if: matrix.os != 'windows-latest' && (matrix.os != 'macos-26' || matrix.cpp_compiler != 'clang++')
+    - name: Configure CMake (Linux, Windows w/o MSVC, macOS w/o Clang)
+      if: matrix.os != 'macos-26' || matrix.cpp_compiler != 'clang++'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }} -G Ninja
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
@@ -60,13 +60,14 @@ jobs:
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }} -G Ninja
         -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@20)/bin/clang++
+        -DCMAKE_OSX_SYSROOT="$(xcrun --sdk macosx --show-sdk-path)"
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 
-    - name: Configure CMake (Windows)
-      if: matrix.os == 'windows-latest'
+    - name: Configure CMake (Windows, MSVC)
+      if: matrix.os == 'windows-latest' and matrix.cpp_compiler == 'cl'
       run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        cmake -B ${{ steps.strings.outputs.build-output-dir }} -G
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
