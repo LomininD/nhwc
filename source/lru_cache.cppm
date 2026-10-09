@@ -11,25 +11,24 @@ import base_cache;
 
 namespace caches {
 
-export template <typename KeyT, typename T>
-class LRUCache : public BaseCache<KeyT, T> {
-  const std::size_t size_;
-
-  // Each entry is {key, page}; most recently used entry is at the front.
-  std::list<std::pair<KeyT, T>> cache_;
-
-  using ListIt = typename std::list<std::pair<KeyT, T>>::iterator;
-  std::unordered_map<KeyT, ListIt> hash_;
-  bool full() const { return (cache_.size() == size_); }
+export template <typename Key, typename Value>
+class LRUCache : public BaseCache<Key, Value> {
 
 public:
-  explicit LRUCache(std::size_t size) : size_(size) {}
-  std::size_t max_capacity() const { return size_; }
+  explicit LRUCache(std::size_t capacity) : BaseCache<Key, Value>(capacity) {}
 
-  bool lookup_update(KeyT key, std::function<T(KeyT)> slow_get_page) {
-    if (max_capacity() == 0)
-      return false;
+private:
+  using BaseCache<Key, Value>::max_capacity;
 
+  // Each entry is {key, page}; most recently used entry is at the front.
+  std::list<std::pair<Key, Value>> cache_;
+
+  using ListIt = typename std::list<std::pair<Key, Value>>::iterator;
+  std::unordered_map<Key, ListIt> hash_;
+
+  bool is_full() const { return (cache_.size() == max_capacity()); }
+
+  bool do_lookup_update(const Key& key, std::function<Value(Key)> slow_get_page) {
     auto hit = hash_.find(key);
     if (hit != hash_.end()) {
       auto eltit = hit->second;
@@ -39,7 +38,7 @@ public:
 
     T page = slow_get_page(key);
 
-    if (full()) {
+    if (is_full()) {
       hash_.erase(cache_.back().first);
       cache_.pop_back();
     }

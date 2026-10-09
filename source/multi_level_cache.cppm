@@ -27,16 +27,11 @@ export struct CacheLevel {
 };
 
 export CacheType string_to_cache_type(const std::string_view str) {
-  if (str == "LRU")
-    return CacheType::kLRU;
-  if (str == "ARC")
-    return CacheType::kARC;
-  if (str == "2Q")
-    return CacheType::k2Q;
-  if (str == "LFU")
-    return CacheType::kLFU;
-  if (str == "LIRS")
-    return CacheType::kLIRS;
+  if (str == "LRU")  return CacheType::kLRU;
+  if (str == "ARC")  return CacheType::kARC;
+  if (str == "2Q")   return CacheType::k2Q;
+  if (str == "LFU")  return CacheType::kLFU;
+  if (str == "LIRS") return CacheType::kLIRS;
   throw std::invalid_argument("unknown cache type: " + std::string(str));
 }
 
@@ -65,7 +60,7 @@ public:
     }
   }
 
-  bool lookup_update(KeyT key, std::function<T(KeyT)> slow_get_page) {
+  bool lookup_update(KeyT& key, std::function<T(KeyT)> slow_get_page) {
     bool loaded = false;
     T page;
 
@@ -80,8 +75,7 @@ public:
 
     for (const auto& level : cache_) {
       auto hit = level->lookup_update(key, get_page);
-      if (hit)
-        return true;
+      if (hit) return true;
     }
     return false;
   }
