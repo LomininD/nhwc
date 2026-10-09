@@ -21,7 +21,7 @@ private:
 
   std::size_t kin_, kout_;
 
-  LRUQueue<T, KeyT> am_, a1_in_;
+  LRUQueue<KeyT, T> am_, a1_in_;
   GhostLRUQueue<KeyT> a1_out_;
 
   bool page_slots_available() const { return a1_in_.size() + am_.size() < max_capacity(); }

@@ -19,8 +19,8 @@ public:
 private:
   using BaseCache<KeyT, T>::max_capacity;
 
-  LRUQueue<T, KeyT> recents_;                // T0: pages seen only once recently
-  LRUQueue<T, KeyT> frequenters_;            // T1: pages seen at least twice recently
+  LRUQueue<KeyT, T> recents_;                // T0: pages seen only once recently
+  LRUQueue<KeyT, T> frequenters_;            // T1: pages seen at least twice recently
   GhostLRUQueue<KeyT> evicted_recents_;      // B0: ghost cache for T1
   GhostLRUQueue<KeyT> evicted_frequenters_;  // B1: ghost cache for T2
 
