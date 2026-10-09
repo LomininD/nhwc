@@ -2,16 +2,12 @@ name: CMake on multiple platforms
 
 on:
   push:
-    branches:
-      - main
     paths-ignore:
       - ".editorconfig"
       - ".gitignore"
       - "README.md"
       - "bench/**"
   pull_request:
-    branches:
-      - main
     paths-ignore:
       - ".editorconfig"
       - ".gitignore"
@@ -65,7 +61,7 @@ jobs:
         -S ${{ github.workspace }}
 
     - name: Configure CMake (Windows, MSVC)
-      if: matrix.os == 'windows-latest' and matrix.cpp_compiler == 'cl'
+      if: matrix.os == 'windows-latest' && matrix.cpp_compiler == 'cl'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }} -G
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
