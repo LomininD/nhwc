@@ -28,9 +28,6 @@ private:
 
   bool is_full() const { return (cache_.size() == max_capacity()); }
 
-    if (max_capacity() == 0)
-      return false;
-
   bool do_lookup_update(const Key& key, std::function<Value(Key)> slow_get_page) {
     auto hit = hash_.find(key);
     if (hit != hash_.end()) {
