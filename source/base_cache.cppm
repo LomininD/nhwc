@@ -16,8 +16,10 @@ public:
   std::size_t max_capacity() const { return capacity_; }
 
   bool lookup_update(const KeyT& key, std::function<T(KeyT)> slow_get_page) {
-    if (max_capacity() == 0)
+    if (max_capacity() == 0) {
       return false;
+    }
+
     return do_lookup_update(key, slow_get_page);
   }
 
