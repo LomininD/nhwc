@@ -44,7 +44,7 @@ private:
   std::list<Record> queue_;
   std::unordered_map<KeyT, RecordIt> hash_queue_;
 
-  RecordIt find_in_stack(KeyT key) {
+  RecordIt find_in_stack(const KeyT& key) {
     auto hit = hash_stack_.find(key);
     return hit == hash_stack_.end() ? stack_.end() : hit->second;
   }
@@ -59,31 +59,31 @@ private:
     return data_.begin();
   }
 
-  void add_to_stack_top(KeyT key, CacheIt data, BlockStatus status) {
+  void add_to_stack_top(const KeyT& key, CacheIt data, BlockStatus status) {
     stack_.emplace_front(key, data, status);
     hash_stack_.emplace(key, stack_.begin());
   }
 
-  void add_to_queue_top(KeyT key, CacheIt data) {
+  void add_to_queue_top(const KeyT& key, CacheIt data) {
     queue_.emplace_front(key, data, BlockStatus::kHIR);
     hash_queue_.emplace(key, queue_.begin());
   }
 
-  bool move_to_stack_top(KeyT key) {
+  bool move_to_stack_top(const KeyT& key) {
     RecordIt stack_it = find_in_stack(key);
     if (stack_it == stack_.end()) return false;
     stack_.splice(stack_.begin(), stack_, stack_it);
     return true;
   }
 
-  bool move_to_queue_top(KeyT key) {
+  bool move_to_queue_top(const KeyT& key) {
     RecordIt queue_it = find_in_queue(key);
     if (queue_it == queue_.end()) return false;
     queue_.splice(queue_.begin(), queue_, queue_it);
     return true;
   }
 
-  bool remove_from_queue(KeyT key) {
+  bool remove_from_queue(const KeyT& key) {
     RecordIt queue_it = find_in_queue(key);
     if (queue_it == queue_.end()) return false;
     hash_queue_.erase(key);
