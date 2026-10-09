@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-26.04, windows-latest, macos-26]
         cpp_compiler: [clang++, g++, cl]
         build_type: [Release]
         exclude:
@@ -47,11 +47,19 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Configure CMake (Linux, macOS)
-      if: matrix.os != 'windows-latest'
+    - name: Configure CMake (Linux, macOS w/o Clang)
+      if: matrix.os != 'windows-latest' && (matrix.os != 'macos-26' || matrix.cpp_compiler != 'clang')
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }} -G Ninja
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -S ${{ github.workspace }}
+
+    - name: Configure CMake (macOS, Clang)
+      if: matrix.os == 'macos-26' && matrix.cpp_compiler == 'clang'
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }} -G Ninja
+        -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@20)/bin/clang++
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 
