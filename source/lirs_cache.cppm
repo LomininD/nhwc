@@ -185,6 +185,7 @@ private:
 export template <typename KeyT, typename T>
 class LIRSCache : public BaseCache<T, KeyT> {
 public:
+#if 0  
   explicit LIRSCache(std::size_t capacity) :
     capacity_(capacity),
     lirs_max_(capacity > 0 ? capacity - std::max<std::size_t>(1, capacity / 100) : 0) {}
@@ -265,8 +266,19 @@ public:
     }
     return false;
   }
+#endif
+  explicit LIRSCache(std::size_t capacity) : state_(capacity) {}
 
+  bool lookup_update(KeyT key, std::function<T(KeyT)> slow_get_page) {
+    if (state_.capacity() == 0) return false;
+    if (state_.lookup_lir(key)) return true;
+    if (state_.lookup_hir(key)) return true;
+
+    state_.insert(key, slow_get_page(key));
+    return false;
+  }
 private:
+#if 0
   std::size_t capacity_, lirs_max_;
   std::size_t lir_count_ = 0;
 
@@ -333,6 +345,8 @@ private:
 
     cache_.erase(victim.data);
   }
+#endif
+  LIRSState<KeyT, T> state_;
 };
 
 }  // namespace caches
