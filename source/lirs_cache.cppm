@@ -14,7 +14,7 @@ import base_cache;
 namespace caches {
 
 export template <typename Key, typename Value>
-class LIRSCache : public BaseCache<Key, Value> {
+class LIRSCache final : public BaseCache<Key, Value> {
 public:
   explicit LIRSCache(std::size_t capacity) :
     BaseCache<Key, Value>(capacity),

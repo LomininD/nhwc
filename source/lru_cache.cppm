@@ -12,7 +12,7 @@ import base_cache;
 namespace caches {
 
 export template <typename Key, typename Value>
-class LRUCache : public BaseCache<Key, Value> {
+class LRUCache final : public BaseCache<Key, Value> {
 
 public:
   explicit LRUCache(std::size_t capacity) : BaseCache<Key, Value>(capacity) {}
@@ -36,7 +36,7 @@ private:
       return true;
     }
 
-    T page = slow_get_page(key);
+    auto page = slow_get_page(key);
 
     if (is_full()) {
       hash_.erase(cache_.back().first);

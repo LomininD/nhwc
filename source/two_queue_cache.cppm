@@ -11,7 +11,7 @@ import base_cache;
 namespace caches {
 
 export template <typename KeyT, typename T>
-class TwoQueueCache : public BaseCache<KeyT, T> {
+class TwoQueueCache final : public BaseCache<KeyT, T> {
 public:
   explicit TwoQueueCache(std::size_t capacity) :
     BaseCache<KeyT, T>(capacity), kin_(capacity / 4), kout_(capacity / 2) {};

@@ -12,7 +12,7 @@ import base_cache;
 namespace caches {
 
 export template <typename Key, typename Value>
-class LFUCache : public BaseCache<Key, Value> {
+class LFUCache final : public BaseCache<Key, Value> {
 public:
   using BaseCache<Key, Value>::max_capacity;
 

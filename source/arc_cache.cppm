@@ -12,7 +12,7 @@ import lru_queue;
 namespace caches {
 
 export template <typename Key, typename Value>
-class ARCCache : public BaseCache<Key, Value> {
+class ARCCache final : public BaseCache<Key, Value> {
 public:
   explicit ARCCache(std::size_t capacity) : BaseCache<Key, Value>(capacity) {}
 
