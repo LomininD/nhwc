@@ -48,8 +48,9 @@ int main(int argc, char* argv[]) {
     if (!key) return 1;
 
     bool hit = cache.lookup_update(key.value(), load);
-    if (hit)
+    if (hit) {
       ++hits;
+    }
   }
 
   if (std::cin.peek() != std::char_traits<char>::eof()) {

@@ -42,8 +42,7 @@ public:
   }
 
   std::optional<QueueItemT> pop_most_recently_used() {
-    if (empty())
-      return std::nullopt;
+    if (empty()) return std::nullopt;
 
     hash_.erase(get_key(cache_.front()));
     auto item = cache_.front();
@@ -53,8 +52,7 @@ public:
   }
 
   std::optional<QueueItemT> pop_last_recently_used() {
-    if (empty())
-      return std::nullopt;
+    if (empty()) return std::nullopt;
 
     hash_.erase(get_key(cache_.back()));
     auto item = cache_.back();
@@ -65,8 +63,7 @@ public:
 
   void erase(const KeyT& key) {
     auto hit = hash_.find(key);
-    if (hit == hash_.end())
-      return;
+    if (hit == hash_.end()) return;
     auto eltit = hit->second;
     cache_.erase(eltit);
     hash_.erase(hit);

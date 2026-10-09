@@ -46,8 +46,7 @@ private:
     }
 
     bool hit_frequenters = frequenters_.lookup(key);
-    if (hit_frequenters)
-      return true;
+    if (hit_frequenters) return true;
 
     bool hit_evicted_recents = evicted_recents_.lookup(key);
     if (hit_evicted_recents) {
@@ -93,9 +92,9 @@ private:
       auto current_size = recents_.size() + frequenters_.size() + evicted_recents_.size() +
                           evicted_frequenters_.size();
       if (current_size >= max_capacity()) {
-        if (current_size == 2 * max_capacity())
+        if (current_size == 2 * max_capacity()) {
           evicted_frequenters_.pop_last_recently_used();
-
+        }
         replace(key);
       }
     }
