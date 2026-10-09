@@ -90,6 +90,35 @@ private:
     queue_.erase(queue_it);
     return true;
   }
+
+  void prune_stack() {
+    while (!stack_.empty() && stack_.back().status == BlockStatus::kHIR) {
+      hash_stack_.erase(stack_.back().key);
+      stack_.pop_back();
+    }
+  }
+
+  void demote_to_hir() {
+    if (stack_.empty()) return;
+    RecordIt bottom = std::prev(stack_.end());
+    bottom->status = BlockStatus::kHIR;
+    hash_stack_.erase(bottom->key);
+    queue_.splice(queue_.begin(), stack_, bottom);
+    hash_queue_.emplace(bottom->key, bottom);
+    --lir_count_;
+  }
+
+  void evict_lru_hir() {
+    if (queue_.empty()) return;
+    KeyT key = std::move(queue_.back().key);
+    CacheIt data = queue_.back().data;
+    hash_queue_.erase(key);
+    queue_.pop_back();
+    
+    RecordIt stack_it = find_in_stack(key);
+    if (stack_it != stack_.end()) stack_it->data = data_.end();
+    data_.erase(data);
+  }
 };
 
 export template <typename KeyT, typename T>
