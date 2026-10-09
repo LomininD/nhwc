@@ -56,6 +56,31 @@ public:
     return true;
   }
 
+  void insert(const KeyT& key, T page) {
+    if (is_full()) evict_lru_hir();
+    CacheIt data = add_to_data(std::move(page));
+
+    RecordIt stack_it = find_in_stack(key);
+    if (stack_it != stack_.end()) {
+      move_to_stack_top(key);
+      stack_it->data = data;
+      stack_it->status = BlockStatus::kLIR;
+      ++lir_count_;
+      demote_to_hir();
+      prune_stack();
+      return;
+    }
+
+    if (lir_count_ < lir_max_) {
+      add_to_stack_top(key, data, BlockStatus::kLIR);
+      ++lir_count_;
+      return;
+    }
+
+    add_to_stack_top(key, data, BlockStatus::kHIR);
+    prune_stack();
+    add_to_queue_top(key, data);
+  }
 private:
   std::size_t capacity_;
   std::size_t lir_max_;
