@@ -25,7 +25,7 @@ private:
   std::size_t lir_max_;
   std::size_t lir_count_ = 0;
 
-  std::list<T> data;
+  std::list<T> data_;
   enum class BlockStatus : bool { kLIR, kHIR };
   using CacheIt = typename std::list<T>::iterator;
 
@@ -43,6 +43,53 @@ private:
 
   std::list<Record> queue_;
   std::unordered_map<KeyT, RecordIt> hash_queue_;
+
+  RecordIt find_in_stack(KeyT key) {
+    auto hit = hash_stack_.find(key);
+    return hit == hash_stack_.end() ? stack_.end() : hit->second;
+  }
+
+  RecordIt find_in_queue(KeyT key) {
+    auto hit = hash_queue_.find(key);
+    return hit == hash_queue_.end() ? queue_.end() : hit->second;
+  }
+
+  CacheIt add_to_data(T page) {
+    data_.emplace_front(page);
+    return data_.begin();
+  }
+
+  void add_to_stack_top(KeyT key, CacheIt data, BlockStatus status) {
+    stack_.emplace_front(key, data, status);
+    hash_stack_.emplace(key, stack_.begin());
+  }
+
+  void add_to_queue_top(KeyT key, CacheIt data) {
+    queue_.emplace_front(key, data, BlockStatus::kHIR);
+    hash_queue_.emplace(key, queue_.begin());
+  }
+
+  bool move_to_stack_top(KeyT key) {
+    RecordIt stack_it = find_in_stack(key);
+    if (stack_it == stack_.end()) return false;
+    stack_.splice(stack_.begin(), stack_, stack_it);
+    return true;
+  }
+
+  bool move_to_queue_top(KeyT key) {
+    RecordIt queue_it = find_in_queue(key);
+    if (queue_it == queue_.end()) return false;
+    queue_.splice(queue_.begin(), queue_, queue_it);
+    return true;
+  }
+
+  bool remove_from_queue(KeyT key) {
+    RecordIt queue_it = find_in_queue(key);
+    if (queue_it == queue_.end()) return false;
+    hash_queue_.erase(key);
+    queue_.erase(queue_it);
+    return true;
+  }
 };
 
 export template <typename KeyT, typename T>
