@@ -119,7 +119,7 @@ TEST(TwoQueueCacheTest, CacheHitsTest) {
 
   auto load = [](int key) { return key; };
 
-  for (auto test : test_cases) {
+  for (const auto& test : test_cases) {
     SCOPED_TRACE("test vector: " + ::testing::PrintToString(test.values));
 
     caches::TwoQueueCache<int, int> cache(test.cache_size);

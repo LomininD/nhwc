@@ -149,7 +149,7 @@ TEST(LIRSCacheTest, CacheHitsTest) {
 
   auto load = [](int key) { return key; };
 
-  for (auto test : test_cases) {
+  for (const auto& test : test_cases) {
     SCOPED_TRACE("test vector: " + ::testing::PrintToString(test.values));
 
     caches::LIRSCache<int, int> cache(test.cache_size);
