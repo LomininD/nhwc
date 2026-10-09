@@ -13,49 +13,95 @@ import base_cache;
 
 namespace caches {
 
-export template <typename KeyT, typename T>
-class LIRSCache : public BaseCache<KeyT, T> {
+export template <typename Key, typename Value>
+class LIRSCache : public BaseCache<Key, Value> {
 public:
   explicit LIRSCache(std::size_t capacity) :
-    BaseCache<KeyT, T>(capacity),
-    lirs_max_(capacity > 0 ? capacity - std::max<std::size_t>(1, capacity / 100) : 0) {}
+    BaseCache<Key, Value>(capacity),
+    lir_max_(capacity > 0 ? capacity - std::max<std::size_t>(1, capacity / 100) : 0) {}
+
+  using BaseCache<Key, Value>::max_capacity;
 
   bool is_full() const { return lir_count_ + queue_.size() >= max_capacity(); }
 
 private:
-  using BaseCache<KeyT, T>::max_capacity;
+  std::size_t lir_max_;
+  std::size_t lir_count_ = 0;
 
-  std::size_t lirs_max_;
+  std::list<Value> data_;
+  enum class BlockStatus : bool { kLIR, kHIR };
+  using CacheIt = typename std::list<Value>::iterator;
 
-  std::list<T> cache_;
-
-  enum class BlockStatus { kLIR, kHIR };
-  using CacheIt = typename std::list<T>::iterator;
-
-  struct StackRecord {
-    KeyT key;
+  struct Record {
+    Key key;
     CacheIt data;
     BlockStatus status;
 
-    StackRecord(KeyT k, CacheIt d, BlockStatus s) : key(k), data(d), status(s) {}
+    Record(Key k, CacheIt d, BlockStatus s) : key(k), data(d), status(s) {}
   };
+  using RecordIt = typename std::list<Record>::iterator;
 
-  struct QueueRecord {
-    KeyT key;
-    CacheIt data;
+  std::list<Record> stack_;
+  std::unordered_map<Key, RecordIt> hash_stack_;
 
-    QueueRecord(KeyT k, CacheIt d) : key(k), data(d) {}
-  };
+  std::list<Record> queue_;
+  std::unordered_map<Key, RecordIt> hash_queue_;
 
-  using StackIt = typename std::list<StackRecord>::iterator;
-  using QueueIt = typename std::list<QueueRecord>::iterator;
+  RecordIt find_in_stack(const Key& key) {
+    auto hit = hash_stack_.find(key);
+    return hit == hash_stack_.end() ? stack_.end() : hit->second;
+  }
 
-  std::list<StackRecord> stack_;
-  std::list<QueueRecord> queue_;
-  std::unordered_map<KeyT, StackIt> hash_stack_;
-  std::unordered_map<KeyT, QueueIt> hash_queue_;
+  RecordIt find_in_queue(Key key) {
+    auto hit = hash_queue_.find(key);
+    return hit == hash_queue_.end() ? queue_.end() : hit->second;
+  }
 
-  std::size_t lir_count_ = 0;
+  CacheIt add_to_data(const Value& page) {
+    data_.emplace_front(page);
+    return data_.begin();
+  }
+
+  void add_to_stack_top(const Key& key, CacheIt data, BlockStatus status) {
+    stack_.emplace_front(key, data, status);
+    hash_stack_.emplace(key, stack_.begin());
+  }
+
+  void add_to_queue_top(const Key& key, CacheIt data) {
+    queue_.emplace_front(key, data, BlockStatus::kHIR);
+    hash_queue_.emplace(key, queue_.begin());
+  }
+
+  bool move_to_stack_top(const Key& key) {
+    RecordIt stack_it = find_in_stack(key);
+    if (stack_it == stack_.end()) {
+      return false;
+    }
+
+    stack_.splice(stack_.begin(), stack_, stack_it);
+    return true;
+  }
+
+  bool move_to_queue_top(const Key& key) {
+    RecordIt queue_it = find_in_queue(key);
+    if (queue_it == queue_.end()) {
+      return false;
+    }
+
+    queue_.splice(queue_.begin(), queue_, queue_it);
+    return true;
+  }
+
+  bool remove_from_queue(const Key& key) {
+    RecordIt queue_it = find_in_queue(key);
+    if (queue_it == queue_.end()) {
+      return false;
+    }
+
+    hash_queue_.erase(key);
+    queue_.erase(queue_it);
+    return true;
+  }
 
   void prune_stack() {
     while (!stack_.empty() && stack_.back().status == BlockStatus::kHIR) {
@@ -64,107 +110,106 @@ private:
     }
   }
 
-  void demote_lir_bottom() {
-    if (stack_.empty())
+  void demote_to_hir() {
+    if (stack_.empty()) {
       return;
+    }
 
-    StackRecord bottom = stack_.back();
-    stack_.pop_back();
-    hash_stack_.erase(bottom.key);
-    bottom.status = BlockStatus::kHIR;
-    queue_.emplace_front(bottom.key, bottom.data);
-    hash_queue_.emplace(bottom.key, queue_.begin());
+    RecordIt bottom = std::prev(stack_.end());
+    bottom->status = BlockStatus::kHIR;
+    hash_stack_.erase(bottom->key);
+    queue_.splice(queue_.begin(), stack_, bottom);
+    hash_queue_.emplace(bottom->key, bottom);
     --lir_count_;
   }
 
   void evict_lru_hir() {
-    if (queue_.empty())
+    if (queue_.empty()) {
       return;
+    }
 
-    QueueRecord victim = queue_.back();
+    Key key = std::move(queue_.back().key);
+    CacheIt data = queue_.back().data;
+    hash_queue_.erase(key);
     queue_.pop_back();
-    hash_queue_.erase(victim.key);
 
-    auto it = hash_stack_.find(victim.key);
-    if (it != hash_stack_.end())
-      it->second->data = cache_.end();
-
-    cache_.erase(victim.data);
+    RecordIt stack_it = find_in_stack(key);
+    if (stack_it != stack_.end()) {
+      stack_it->data = data_.end();
+    }
+    data_.erase(data);
   }
 
-  bool do_lookup_update(const KeyT& key, std::function<T(KeyT)> slow_get_page) {
-    auto hit_stack = hash_stack_.find(key);
-    bool in_stack = hit_stack != hash_stack_.end();
-    auto hit_queue = hash_queue_.find(key);
-    bool in_queue = hit_queue != hash_queue_.end();
-
-    if (in_stack && hit_stack->second->status == BlockStatus::kLIR) {
-      stack_.splice(stack_.begin(), stack_, hit_stack->second);
-      prune_stack();
-      return true;
-    }
-
-    if (in_queue) {
-      if (in_stack) {
-        stack_.splice(stack_.begin(), stack_, hit_stack->second);
-        hit_stack->second->status = BlockStatus::kLIR;
-        ++lir_count_;
-
-        queue_.erase(hit_queue->second);
-        hash_queue_.erase(key);
-
-        demote_lir_bottom();
-        prune_stack();
-      } else {
-        queue_.splice(queue_.begin(), queue_, hit_queue->second);
-        stack_.emplace_front(key, hit_queue->second->data, BlockStatus::kHIR);
-        hash_stack_.emplace(key, stack_.begin());
-        prune_stack();
-      }
-
-      return true;
-    }
-
-    T page = slow_get_page(key);
-
-    if (!is_full()) {
-      cache_.emplace_front(std::move(page));
-
-      if (lir_count_ < lirs_max_) {
-        stack_.emplace_front(key, cache_.begin(), BlockStatus::kLIR);
-        hash_stack_.emplace(key, stack_.begin());
-        ++lir_count_;
-      } else {
-        stack_.emplace_front(key, cache_.begin(), BlockStatus::kHIR);
-        hash_stack_.emplace(key, stack_.begin());
-        prune_stack();
-        queue_.emplace_front(key, cache_.begin());
-        hash_queue_.emplace(key, queue_.begin());
-      }
-
+  bool lookup_lir(const Key& key) {
+    RecordIt stack_it = find_in_stack(key);
+    if (stack_it == stack_.end() || stack_it->status != BlockStatus::kLIR) {
       return false;
     }
 
-    evict_lru_hir();
-    cache_.emplace_front(std::move(page));
+    move_to_stack_top(key);
+    prune_stack();
+    return true;
+  }
 
-    if (in_stack) {
-      stack_.splice(stack_.begin(), stack_, hit_stack->second);
-      hit_stack->second->data = cache_.begin();
-      hit_stack->second->status = BlockStatus::kLIR;
-      ++lir_count_;
-
-      demote_lir_bottom();
-      prune_stack();
-    } else {
-      stack_.emplace_front(key, cache_.begin(), BlockStatus::kHIR);
-      hash_stack_.emplace(key, stack_.begin());
-      prune_stack();
-      queue_.emplace_front(key, cache_.begin());
-      hash_queue_.emplace(key, queue_.begin());
+  bool lookup_hir(const Key& key) {
+    RecordIt queue_it = find_in_queue(key);
+    if (queue_it == queue_.end() || queue_it->status != BlockStatus::kHIR) {
+      return false;
     }
 
-    return false;
+    RecordIt stack_it = find_in_stack(key);
+    if (stack_it != stack_.end()) {
+      move_to_stack_top(key);
+      stack_it->status = BlockStatus::kLIR;
+      ++lir_count_;
+
+      remove_from_queue(key);
+      demote_to_hir();
+      prune_stack();
+    } else {
+      move_to_queue_top(key);
+      add_to_stack_top(key, queue_it->data, BlockStatus::kHIR);
+      prune_stack();
+    }
+    return true;
+  }
+
+  void insert(const Key& key, const Value& page) {
+    if (is_full()) {
+      evict_lru_hir();
+    }
+
+    CacheIt data = add_to_data(std::move(page));
+
+    RecordIt stack_it = find_in_stack(key);
+    if (stack_it != stack_.end()) {
+      move_to_stack_top(key);
+      stack_it->data = data;
+      stack_it->status = BlockStatus::kLIR;
+      ++lir_count_;
+      demote_to_hir();
+      prune_stack();
+      return;
+    }
+
+    if (lir_count_ < lir_max_) {
+      add_to_stack_top(key, data, BlockStatus::kLIR);
+      ++lir_count_;
+      return;
+    }
+
+    add_to_stack_top(key, data, BlockStatus::kHIR);
+    prune_stack();
+    add_to_queue_top(key, data);
+  }
+
+  bool do_lookup_update(const Key& key, std::function<Value(Key)> slow_get_page) {
+    if (lookup_lir(key) || lookup_hir(key)) {
+      return true;
+    } else {
+      insert(key, slow_get_page(key));
+      return false;
+    }
   }
 };
 
