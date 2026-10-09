@@ -33,6 +33,8 @@ jobs:
             cpp_compiler: cl
           - os: macos-26
             cpp_compiler: cl
+          - os: macos-26
+            cpp_compiler: g++
 
     steps:
     - uses: actions/checkout@v7
@@ -44,7 +46,12 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Configure CMake (Linux, Windows w/o MSVC, macOS w/o Clang)
-      if: matrix.os != 'macos-26' || matrix.cpp_compiler != 'clang++'
+      if: >
+        matrix.cpp_compiler != 'cl' &&
+        (
+          matrix.os != 'macos-26' ||
+          matrix.cpp_compiler != 'clang++'
+        )
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }} -G Ninja
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
