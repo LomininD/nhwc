@@ -26,7 +26,7 @@ private:
 
   std::size_t p_ = 0;
 
-  void replace(KeyT key) {
+  void replace(const KeyT& key) {
     if (!recents_.empty() && (recents_.size() > p_ || (evicted_frequenters_.has(key) &&
         p_ == recents_.size()))) {
       auto victim = recents_.pop_last_recently_used();
