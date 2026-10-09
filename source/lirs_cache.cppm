@@ -16,10 +16,10 @@ namespace caches {
 template <typename KeyT, typename T>
 class LIRSState {
 public:
-  explicit LIRSState(std::size_t capacity) : 
+  explicit LIRSState(std::size_t capacity) :
     capacity_(capacity),
     lir_max_(capacity > 0 ? capacity - std::max<std::size_t>(1, capacity / 100) : 0) {}
-  
+
   std::size_t capacity() const { return capacity_; }
 
   bool is_full() const { return lir_count_ + queue_.size() >= capacity_; }
@@ -57,7 +57,8 @@ public:
   }
 
   void insert(const KeyT& key, T page) {
-    if (is_full()) evict_lru_hir();
+    if (is_full())
+      evict_lru_hir();
     CacheIt data = add_to_data(std::move(page));
 
     RecordIt stack_it = find_in_stack(key);
@@ -81,6 +82,7 @@ public:
     prune_stack();
     add_to_queue_top(key, data);
   }
+
 private:
   std::size_t capacity_;
   std::size_t lir_max_;
@@ -132,21 +134,24 @@ private:
 
   bool move_to_stack_top(const KeyT& key) {
     RecordIt stack_it = find_in_stack(key);
-    if (stack_it == stack_.end()) return false;
+    if (stack_it == stack_.end())
+      return false;
     stack_.splice(stack_.begin(), stack_, stack_it);
     return true;
   }
 
   bool move_to_queue_top(const KeyT& key) {
     RecordIt queue_it = find_in_queue(key);
-    if (queue_it == queue_.end()) return false;
+    if (queue_it == queue_.end())
+      return false;
     queue_.splice(queue_.begin(), queue_, queue_it);
     return true;
   }
 
   bool remove_from_queue(const KeyT& key) {
     RecordIt queue_it = find_in_queue(key);
-    if (queue_it == queue_.end()) return false;
+    if (queue_it == queue_.end())
+      return false;
     hash_queue_.erase(key);
     queue_.erase(queue_it);
     return true;
@@ -160,7 +165,8 @@ private:
   }
 
   void demote_to_hir() {
-    if (stack_.empty()) return;
+    if (stack_.empty())
+      return;
     RecordIt bottom = std::prev(stack_.end());
     bottom->status = BlockStatus::kHIR;
     hash_stack_.erase(bottom->key);
@@ -170,14 +176,16 @@ private:
   }
 
   void evict_lru_hir() {
-    if (queue_.empty()) return;
+    if (queue_.empty())
+      return;
     KeyT key = std::move(queue_.back().key);
     CacheIt data = queue_.back().data;
     hash_queue_.erase(key);
     queue_.pop_back();
-    
+
     RecordIt stack_it = find_in_stack(key);
-    if (stack_it != stack_.end()) stack_it->data = data_.end();
+    if (stack_it != stack_.end())
+      stack_it->data = data_.end();
     data_.erase(data);
   }
 };
@@ -188,13 +196,17 @@ public:
   explicit LIRSCache(std::size_t capacity) : state_(capacity) {}
 
   bool lookup_update(KeyT key, std::function<T(KeyT)> slow_get_page) {
-    if (state_.capacity() == 0) return false;
-    if (state_.lookup_lir(key)) return true;
-    if (state_.lookup_hir(key)) return true;
+    if (state_.capacity() == 0)
+      return false;
+    if (state_.lookup_lir(key))
+      return true;
+    if (state_.lookup_hir(key))
+      return true;
 
     state_.insert(key, slow_get_page(key));
     return false;
   }
+
 private:
   LIRSState<KeyT, T> state_;
 };
