@@ -24,12 +24,13 @@ public:
       return false;
 
     if (auto it = cache_map_.find(key); it != cache_map_.end()) {
-      Record node = *(it->second);
+      Record node = std::move(*(it->second));
       freq_to_list_map_[node.freq].erase(it->second);
       node.freq += 1;
 
-      freq_to_list_map_[node.freq].push_front(node);
-      cache_map_[key] = freq_to_list_map_[node.freq].begin();
+
+      freq_to_list_map_[node.freq].emplace_front(std::move(node));
+      it->second = freq_to_list_map_[node.freq].begin();
 
       if (freq_to_list_map_[min_freq_].empty())
         min_freq_++;
@@ -37,17 +38,17 @@ public:
       return true;
     } else {
       if (is_full()) {
-        auto evicted_node = freq_to_list_map_[min_freq_].back();
-        cache_map_.erase(evicted_node.key);
+        auto victim = freq_to_list_map_[min_freq_].back();
+        cache_map_.erase(victim.key);
         freq_to_list_map_[min_freq_].pop_back();
       }
 
       auto page = slow_get_page(key);
-      Record rec{.key = key, .page = page, .freq = 1};
 
       min_freq_ = 1;
-      freq_to_list_map_[min_freq_].push_front(rec);
-      cache_map_[key] = freq_to_list_map_[min_freq_].begin();
+      auto& temp_lst = freq_to_list_map_[min_freq_];
+      temp_lst.emplace_front(key, std::move(page), 1);
+      cache_map_[key] = temp_lst.begin();
 
       return false;
     }
