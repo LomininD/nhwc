@@ -11,22 +11,22 @@ import lru_queue;
 
 namespace caches {
 
-export template <typename KeyT, typename T>
-class ARCCache : public BaseCache<KeyT, T> {
+export template <typename Key, typename Value>
+class ARCCache : public BaseCache<Key, Value> {
 public:
-  explicit ARCCache(std::size_t capacity) : BaseCache<KeyT, T>(capacity) {}
+  explicit ARCCache(std::size_t capacity) : BaseCache<Key, Value>(capacity) {}
 
 private:
-  using BaseCache<KeyT, T>::max_capacity;
+  using BaseCache<Key, Value>::max_capacity;
 
-  LRUQueue<KeyT, T> recents_;                // T0: pages seen only once recently
-  LRUQueue<KeyT, T> frequenters_;            // T1: pages seen at least twice recently
-  GhostLRUQueue<KeyT> evicted_recents_;      // B0: ghost cache for T1
-  GhostLRUQueue<KeyT> evicted_frequenters_;  // B1: ghost cache for T2
+  LRUQueue<Key, Value> recents_;            // T1: pages seen only once recently
+  LRUQueue<Key, Value> frequenters_;        // T2: pages seen at least twice recently
+  GhostLRUQueue<Key> evicted_recents_;      // B1: ghost cache for T1
+  GhostLRUQueue<Key> evicted_frequenters_;  // B2: ghost cache for T2
 
   std::size_t p_ = 0;
 
-  void replace(const KeyT& key) {
+  void replace(const Key& key) {
     if (!recents_.empty() && (recents_.size() > p_ || (evicted_frequenters_.has(key) &&
         p_ == recents_.size()))) {
       auto victim = recents_.pop_last_recently_used();
@@ -37,7 +37,7 @@ private:
     }
   }
 
-  bool do_lookup_update(const KeyT& key, std::function<T(KeyT)> slow_get_page){
+  bool do_lookup_update(const Key& key, std::function<Value(Key)> slow_get_page){
     bool hit_recents = recents_.lookup(key);
     if (hit_recents) {
       auto item = recents_.pop_most_recently_used();

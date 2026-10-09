@@ -11,27 +11,27 @@ import base_cache;
 
 namespace caches {
 
-export template <typename KeyT, typename T>
-class LRUCache : public BaseCache<KeyT, T> {
+export template <typename Key, typename Value>
+class LRUCache : public BaseCache<Key, Value> {
 
 public:
-  explicit LRUCache(std::size_t capacity) : BaseCache<KeyT, T>(capacity) {}
+  explicit LRUCache(std::size_t capacity) : BaseCache<Key, Value>(capacity) {}
 
 private:
-  using BaseCache<KeyT, T>::max_capacity;
+  using BaseCache<Key, Value>::max_capacity;
 
   // Each entry is {key, page}; most recently used entry is at the front.
-  std::list<std::pair<KeyT, T>> cache_;
+  std::list<std::pair<Key, Value>> cache_;
 
-  using ListIt = typename std::list<std::pair<KeyT, T>>::iterator;
-  std::unordered_map<KeyT, ListIt> hash_;
+  using ListIt = typename std::list<std::pair<Key, Value>>::iterator;
+  std::unordered_map<Key, ListIt> hash_;
 
   bool is_full() const { return (cache_.size() == max_capacity()); }
 
-  bool do_lookup_update(const KeyT& key, std::function<T(KeyT)> slow_get_page) {
     if (max_capacity() == 0)
       return false;
 
+  bool do_lookup_update(const Key& key, std::function<Value(Key)> slow_get_page) {
     auto hit = hash_.find(key);
     if (hit != hash_.end()) {
       auto eltit = hit->second;
