@@ -45,9 +45,9 @@ public:
       auto page = slow_get_page(key);
 
       min_freq_ = 1;
-      auto& temp_lst = freq_to_list_map_[min_freq_];
-      temp_lst.emplace_front(key, std::move(page), 1);
-      cache_map_.emplace(key, temp_lst.begin());
+      auto& min_freq_bucket = freq_to_list_map_[min_freq_];
+      min_freq_bucket.emplace_front(key, std::move(page), 1);
+      cache_map_.emplace(key, min_freq_bucket.begin());
 
       return false;
     }
