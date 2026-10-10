@@ -2,8 +2,6 @@
 #include <cstddef>
 #include <print>
 #include <ranges>
-// FIXME: this include should be redundant, but the project doesn't compile without it
-#include <list>
 
 import cli11;
 
