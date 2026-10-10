@@ -74,9 +74,9 @@ template <typename Key, typename Value>
 struct LRUQueueItem { Key key; Value page; };
 
 export template <typename Key, typename Value>
-class LRUQueue : public BaseLRUQueue<Key, LRUQueueItem<Key, Value>> {};
+class LRUQueue final : public BaseLRUQueue<Key, LRUQueueItem<Key, Value>> {};
 
 export template <typename Key>
-class GhostLRUQueue : public BaseLRUQueue<Key, Key> {};
+class GhostLRUQueue final : public BaseLRUQueue<Key, Key> {};
 
 } // namespace caches
