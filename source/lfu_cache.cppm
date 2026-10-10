@@ -12,7 +12,7 @@ import base_cache;
 namespace caches {
 
 export template <typename Key, typename Value>
-class LFUCache : public BaseCache<Key, Value> {
+class LFUCache final : public BaseCache<Key, Value> {
 public:
   LFUCache(std::size_t capacity) : capacity_(capacity), min_freq_(1) {}
 
