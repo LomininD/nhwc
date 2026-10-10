@@ -55,19 +55,19 @@ public:
 
 private:
   const std::size_t capacity_;
-  int min_freq_;
+  std::size_t min_freq_;
 
   struct Record {
     Key key;
     Value page;
-    size_t freq;
+    std::size_t freq;
   };
 
   using NodeIt = typename std::list<Record>::iterator;
   std::unordered_map<Key, NodeIt> cache_map_;
   std::unordered_map<size_t, std::list<Record>> freq_to_list_map_;
 
-  void check_freq_bucket_for_emptiness(size_t freq) {
+  void check_freq_bucket_for_emptiness(std::size_t freq) {
     if (freq_to_list_map_[freq].empty())
         freq_to_list_map_.erase(freq);
   }
