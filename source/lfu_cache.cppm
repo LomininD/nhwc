@@ -24,15 +24,12 @@ public:
       return false;
 
     if (auto it = cache_map_.find(key); it != cache_map_.end()) {
-      Record node = std::move(*(it->second));
-      freq_to_list_map_[node.freq].erase(it->second);
+      const std::size_t old_freq = it->second->freq;
+      auto& new_bucket = freq_to_list_map_[old_freq + 1];
+      new_bucket.splice(new_bucket.begin(), freq_to_list_map_[old_freq], it->second);
+      it->second->freq += 1;
 
-      check_freq_bucket_for_emptiness(node.freq);
-
-      node.freq += 1;
-      freq_to_list_map_[node.freq].emplace_front(std::move(node));
-      it->second = freq_to_list_map_[node.freq].begin();
-
+      check_freq_bucket_for_emptiness(old_freq);
       if (!freq_to_list_map_.contains(min_freq_))
         min_freq_++; // element can be promoted only 1 bucket upper
 
