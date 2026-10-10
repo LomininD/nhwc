@@ -47,7 +47,7 @@ public:
       min_freq_ = 1;
       auto& temp_lst = freq_to_list_map_[min_freq_];
       temp_lst.emplace_front(key, std::move(page), 1);
-      cache_map_[key] = temp_lst.begin();
+      cache_map_.emplace(key, temp_lst.begin());
 
       return false;
     }
