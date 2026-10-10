@@ -2,16 +2,12 @@ name: CMake on multiple platforms
 
 on:
   push:
-    branches:
-      - main
     paths-ignore:
       - ".editorconfig"
       - ".gitignore"
       - "README.md"
       - "bench/**"
   pull_request:
-    branches:
-      - main
     paths-ignore:
       - ".editorconfig"
       - ".gitignore"
@@ -27,16 +23,18 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-26.04, windows-latest, macos-26]
         cpp_compiler: [clang++, g++, cl]
         build_type: [Release]
         exclude:
           - os: windows-latest
             cpp_compiler: g++
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             cpp_compiler: cl
-          - os: macos-latest
+          - os: macos-26
             cpp_compiler: cl
+          - os: macos-26
+            cpp_compiler: g++
 
     steps:
     - uses: actions/checkout@v7
@@ -47,16 +45,30 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Configure CMake (Linux, macOS)
-      if: matrix.os != 'windows-latest'
+    - name: Configure CMake (Linux, Windows w/o MSVC, macOS w/o Clang)
+      if: >
+        matrix.cpp_compiler != 'cl' &&
+        (
+          matrix.os != 'macos-26' ||
+          matrix.cpp_compiler != 'clang++'
+        )
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }} -G Ninja
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 
-    - name: Configure CMake (Windows)
-      if: matrix.os == 'windows-latest'
+    - name: Configure CMake (macOS, Clang)
+      if: matrix.os == 'macos-26' && matrix.cpp_compiler == 'clang++'
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }} -G Ninja
+        -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@20)/bin/clang++
+        -DCMAKE_OSX_SYSROOT="$(xcrun --sdk macosx --show-sdk-path)"
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -S ${{ github.workspace }}
+
+    - name: Configure CMake (Windows, MSVC)
+      if: matrix.os == 'windows-latest' && matrix.cpp_compiler == 'cl'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}

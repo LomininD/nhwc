@@ -18,7 +18,7 @@ int main() {
   caches::BeladyCache<PageId, Page> cache(cache_size.value());
 
   std::vector<PageId> requests(data_len.value());
-  for (const auto& i : std::views::iota(0uz, data_len)) {
+  for (const auto& i : std::views::iota(0uz, data_len.value())) {
     auto key = util::read_integer<PageId>();
     if (!key) return 1;
     requests[i] = key.value();

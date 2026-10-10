@@ -168,15 +168,16 @@ TEST(LFUCacheTest, CacheHitsTest) {
 
   auto load = [](int key) { return key; };
 
-  for (auto test : test_cases) {
+  for (const auto& test : test_cases) {
     SCOPED_TRACE("test vector: " + ::testing::PrintToString(test.values));
 
     caches::LFUCache<int, int> cache(test.cache_size);
     int hits = 0;
     for (auto v : test.values) {
       auto hit = cache.lookup_update(v, load);
-      if (hit)
+      if (hit) {
         hits++;
+      }
     }
 
     EXPECT_EQ(hits, test.hits);

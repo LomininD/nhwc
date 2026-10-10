@@ -3,7 +3,7 @@ module;
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
-#include <list>
+#include <vector>
 #include <print>
 #include <ranges>
 
@@ -13,7 +13,7 @@ import multi_level_cache;
 
 namespace caches::config {
 
-export std::list<caches::CacheLevel>
+export std::vector<caches::CacheLevel>
 parse_cache_levels_algorithms(const std::filesystem::path& config_path) {
   std::ifstream file{config_path};
 
@@ -22,15 +22,14 @@ parse_cache_levels_algorithms(const std::filesystem::path& config_path) {
     std::exit(1);
   }
 
-  std::list<caches::CacheLevel> levels;
+  std::vector<caches::CacheLevel> levels;
   std::size_t cache_levels;
 
   file >> cache_levels;
   for (const auto _ : std::views::iota(0uz, cache_levels)) {
     std::string level_algorithm;
     file >> level_algorithm;
-    levels.emplace_back(
-    caches::CacheLevel{.type = caches::string_to_cache_type(level_algorithm), .capacity = 0});
+    levels.emplace_back(caches::string_to_cache_type(level_algorithm), 0);
   }
 
   return levels;

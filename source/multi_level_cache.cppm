@@ -27,49 +27,44 @@ export struct CacheLevel {
 };
 
 export CacheType string_to_cache_type(const std::string_view str) {
-  if (str == "LRU")
-    return CacheType::kLRU;
-  if (str == "ARC")
-    return CacheType::kARC;
-  if (str == "2Q")
-    return CacheType::k2Q;
-  if (str == "LFU")
-    return CacheType::kLFU;
-  if (str == "LIRS")
-    return CacheType::kLIRS;
+  if (str == "LRU")  return CacheType::kLRU;
+  if (str == "ARC")  return CacheType::kARC;
+  if (str == "2Q")   return CacheType::k2Q;
+  if (str == "LFU")  return CacheType::kLFU;
+  if (str == "LIRS") return CacheType::kLIRS;
   throw std::invalid_argument("unknown cache type: " + std::string(str));
 }
 
-export template <typename KeyT, typename T>
+export template <typename Key, typename Value>
 class MultiLevelCache {
 public:
   MultiLevelCache(std::ranges::input_range auto&& levels) {
     for (const auto& level : levels) {
       switch (level.type) {
         case CacheType::kARC:
-          cache_.emplace_back(std::make_unique<ARCCache<T, KeyT>>(level.capacity));
+          cache_.emplace_back(std::make_unique<ARCCache<Key, Value>>(level.capacity));
           break;
         case CacheType::k2Q:
-          cache_.emplace_back(std::make_unique<TwoQueueCache<T, KeyT>>(level.capacity));
+          cache_.emplace_back(std::make_unique<TwoQueueCache<Key, Value>>(level.capacity));
           break;
         case CacheType::kLRU:
-          cache_.emplace_back(std::make_unique<LRUCache<T, KeyT>>(level.capacity));
+          cache_.emplace_back(std::make_unique<LRUCache<Key, Value>>(level.capacity));
           break;
         case CacheType::kLFU:
-          cache_.emplace_back(std::make_unique<LFUCache<T, KeyT>>(level.capacity));
+          cache_.emplace_back(std::make_unique<LFUCache<Key, Value>>(level.capacity));
           break;
         case CacheType::kLIRS:
-          cache_.emplace_back(std::make_unique<LIRSCache<T, KeyT>>(level.capacity));
+          cache_.emplace_back(std::make_unique<LIRSCache<Key, Value>>(level.capacity));
           break;
       }
     }
   }
 
-  bool lookup_update(KeyT& key, std::function<T(KeyT)> slow_get_page) {
+  bool lookup_update(const Key& key, std::function<Value(Key)> slow_get_page) {
     bool loaded = false;
-    T page;
+    Value page;
 
-    auto get_page = [&](KeyT key) -> T {
+    auto get_page = [&](Key key) -> Value {
       if (!loaded) {
         page = slow_get_page(key);
         loaded = true;
@@ -80,14 +75,13 @@ public:
 
     for (const auto& level : cache_) {
       auto hit = level->lookup_update(key, get_page);
-      if (hit)
-        return true;
+      if (hit) return true;
     }
     return false;
   }
 
 private:
-  std::list<std::unique_ptr<BaseCache<T, KeyT>>> cache_;
+  std::list<std::unique_ptr<BaseCache<Key, Value>>> cache_;
 };
 
 }  // namespace caches
