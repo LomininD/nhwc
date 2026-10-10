@@ -9,24 +9,19 @@ export module lru_queue;
 
 namespace caches {
 
-template <typename KeyT, typename QueueItemT = KeyT>
+template <typename Key, typename QueueItem>
 class BaseLRUQueue {
-protected:
-  std::list<QueueItemT> cache_;
-
-  using QueueIt = typename std::list<QueueItemT>::iterator;
-  std::unordered_map<KeyT, QueueIt> hash_;
-
-  virtual KeyT get_key(QueueItemT& item) = 0;
-
-  virtual ~BaseLRUQueue() = default;
 public:
+  virtual ~BaseLRUQueue() = default;
+
   std::size_t size() const { return cache_.size(); }
-
   bool empty() const { return size() == 0; }
-  bool has(const KeyT& key) const { return hash_.find(key) != hash_.end(); }
+  bool has(const Key& key) const { return hash_.contains(key); }
 
-  bool lookup(const KeyT& key) {
+  std::optional<QueueItem> pop_most_recently_used() { return pop(cache_.begin()); }
+  std::optional<QueueItem> pop_last_recently_used() { return pop(std::prev(cache_.end())); }
+
+  bool lookup(const Key& key) {
     auto hit = hash_.find(key);
     if (hit != hash_.end()) {
       auto eltit = hit->second;
@@ -36,55 +31,52 @@ public:
     return false;
   }
 
-  void insert(QueueItemT item) {
+  void insert(QueueItem item) {
     cache_.emplace_front(item);
     hash_.emplace(get_key(item), cache_.begin());
   }
 
-  std::optional<QueueItemT> pop_most_recently_used() {
-    if (empty()) return std::nullopt;
-
-    hash_.erase(get_key(cache_.front()));
-    auto item = cache_.front();
-    cache_.pop_front();
-
-    return item;
-  }
-
-  std::optional<QueueItemT> pop_last_recently_used() {
-    if (empty()) return std::nullopt;
-
-    hash_.erase(get_key(cache_.back()));
-    auto item = cache_.back();
-    cache_.pop_back();
-
-    return item;
-  }
-
-  void erase(const KeyT& key) {
+  void erase(const Key& key) {
     auto hit = hash_.find(key);
     if (hit == hash_.end()) return;
     auto eltit = hit->second;
     cache_.erase(eltit);
     hash_.erase(hit);
   }
+
+private:
+  std::list<QueueItem> cache_;
+
+  using QueueIt = typename std::list<QueueItem>::iterator;
+  std::unordered_map<Key, QueueIt> hash_;
+
+  auto get_key(const QueueItem& item) {
+    if constexpr (std::is_same_v<Key, QueueItem>) {
+      return item;
+    } else {
+      return item.key;
+    }
+  }
+
+  std::optional<QueueItem> pop(std::list<QueueItem>::iterator it) {
+    if (empty()) return std::nullopt;
+
+    hash_.erase(get_key(*it));
+    auto item = *it;
+    cache_.erase(it);
+
+    return item;
+  }
 };
 
-template <typename KeyT, typename T>
-struct LRUQueueItem {
-  KeyT key;
-  T page;
-};
 
-export template <typename KeyT, typename T>
-class LRUQueue : public BaseLRUQueue<KeyT, LRUQueueItem<KeyT, T>> {
-  using QueueItem = LRUQueueItem<T, KeyT>;
-  KeyT get_key(QueueItem& item) { return item.key; }
-};
+template <typename Key, typename Value>
+struct LRUQueueItem { Key key; Value page; };
 
-export template <typename KeyT = int>
-class GhostLRUQueue : public BaseLRUQueue<KeyT, KeyT> {
-  KeyT get_key(KeyT& item) { return item; }
-};
+export template <typename Key, typename Value>
+class LRUQueue : public BaseLRUQueue<Key, LRUQueueItem<Key, Value>> {};
 
-}  // namespace caches
+export template <typename Key>
+class GhostLRUQueue : public BaseLRUQueue<Key, Key> {};
+
+} // namespace caches
