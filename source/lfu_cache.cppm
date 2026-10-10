@@ -26,14 +26,15 @@ public:
     if (auto it = cache_map_.find(key); it != cache_map_.end()) {
       Record node = std::move(*(it->second));
       freq_to_list_map_[node.freq].erase(it->second);
+
+      check_freq_bucket_for_emptiness(node.freq);
+
       node.freq += 1;
-
-
       freq_to_list_map_[node.freq].emplace_front(std::move(node));
       it->second = freq_to_list_map_[node.freq].begin();
 
-      if (freq_to_list_map_[min_freq_].empty())
-        min_freq_++;
+      if (!freq_to_list_map_.contains(min_freq_))
+        min_freq_++; // element can be promoted only 1 bucket upper
 
       return true;
     } else {
@@ -41,7 +42,8 @@ public:
         auto victim = freq_to_list_map_[min_freq_].back();
         cache_map_.erase(victim.key);
         freq_to_list_map_[min_freq_].pop_back();
-      }
+        check_freq_bucket_for_emptiness(min_freq_); // no need to increase min_freq as we set it 1
+      }                                             // later anyway
 
       auto page = slow_get_page(key);
 
@@ -61,12 +63,17 @@ private:
   struct Record {
     Key key;
     Value page;
-    unsigned int freq;
+    size_t freq;
   };
 
   using NodeIt = typename std::list<Record>::iterator;
   std::unordered_map<Key, NodeIt> cache_map_;
-  std::unordered_map<unsigned int, std::list<Record>> freq_to_list_map_;
+  std::unordered_map<size_t, std::list<Record>> freq_to_list_map_;
+
+  void check_freq_bucket_for_emptiness(size_t freq) {
+    if (freq_to_list_map_[freq].empty())
+        freq_to_list_map_.erase(freq);
+  }
 };
 
 }  // namespace caches
