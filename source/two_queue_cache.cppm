@@ -50,8 +50,7 @@ private:
     if (hit_a1_out) {
       a1_out_.erase(key);
       reclaim_for();
-      T page = slow_get_page(key);
-      am_.insert({key, page});
+      am_.insert({key, slow_get_page(key)});
       return false;
     }
 
@@ -61,8 +60,7 @@ private:
 
     reclaim_for();
 
-    auto page = slow_get_page(key);
-    a1_in_.insert({key, page});
+    a1_in_.insert({key, slow_get_page(key)});
 
     return false;
   }
