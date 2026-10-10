@@ -56,8 +56,7 @@ public:
         it->second = next;
         heap_.push({ cur, next });
       }
-      else
-      {
+      else {
         if (is_full()) {
           while (!heap_.empty()) {
             auto top = heap_.top();
@@ -76,6 +75,7 @@ public:
       }
     }
 
+    clear_cache();
     return hits;
   }
 
@@ -126,6 +126,13 @@ private:
     heap_.push({key, next});
     cache_list_.emplace_front(slow_get_page(key));
     cache_map_[key] = cache_list_.begin();
+  }
+
+  void clear_cache() {
+    cache_list_.clear();
+    cache_map_.clear();
+    request_occurrence_map_.clear();
+    heap_ = {};
   }
 
 };

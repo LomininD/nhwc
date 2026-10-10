@@ -14,12 +14,13 @@ namespace caches {
 export template <typename Key, typename Value>
 class LFUCache final : public BaseCache<Key, Value> {
 public:
-  LFUCache(std::size_t capacity) : capacity_(capacity), min_freq_(1) {}
+  explicit LFUCache(std::size_t capacity) : BaseCache<Key, Value>(capacity),
+  capacity_(capacity), min_freq_(1) {}
 
   std::size_t max_capacity() const { return capacity_; }
   bool is_full() const { return (capacity_ == cache_map_.size()); }
 
-  bool lookup_update(Key& key, std::function<Value(Key)> slow_get_page) {
+  bool do_lookup_update(const Key& key, std::function<Value(Key)> slow_get_page) override {
     if (max_capacity() == 0)
       return false;
 
